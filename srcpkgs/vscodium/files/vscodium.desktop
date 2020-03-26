@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=VSCodium
-Comment=Code Editing. Redefined.
+Comment=ree/Libre Open Source Software Binaries of VSCode.
 GenericName=Text Editor
-Exec=/usr/lib/codium/codium --unity-launch %F
+Exec=code --unity-launch %F
 Icon=vscodium
 Type=Application
 StartupNotify=true
@@ -14,5 +14,5 @@ Keywords=vscode;
 
 [Desktop Action new-empty-window]
 Name=New Empty Window
-Exec=/usr/lib/codium/codium --new-window %F
+Exec=code --new-window %F
 Icon=vscodium

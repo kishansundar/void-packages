@@ -5,6 +5,7 @@ revision=1
 archs="x86_64"
 create_wrksrc=yes
 depends="libXtst libxkbfile nss dejavu-fonts-ttf xdg-utils"
+conflicts="vscode"
 short_desc="VSCodium is a community-driven, freely-licensed binary distribution of Microsoft's editor VSCode"
 maintainer="Kishan <kishan@kishan.sh>"
 license="GPL-3.0-or-later"
