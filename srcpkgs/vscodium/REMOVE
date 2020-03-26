@@ -1,0 +1,10 @@
+if [ "$UPDATE" = "no" ]; then
+    case "$ACTION" in
+        post)
+            if [ -d usr/lib/codium ]; then
+                rm -rf usr/lib/codium
+		        rm -rf usr/share/codium
+            fi
+        ;;
+    esac
+fi

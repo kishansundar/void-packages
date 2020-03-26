@@ -1,9 +1,0 @@
-if [ "$UPDATE" = "no" ]; then
-    case "$ACTION" in
-        post)
-            if [ -d usr/share/codium ]; then
-                rm -rf usr/share/codium
-            fi
-        ;;
-    esac
-fi
