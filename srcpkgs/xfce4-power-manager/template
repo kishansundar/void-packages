@@ -1,9 +1,9 @@
 # Template file for 'xfce4-power-manager'
 pkgname=xfce4-power-manager
-version=1.7.0
-revision=1
+version=4.16.0
+revision=2
 build_style=gnu-configure
-configure_args="--disable-static"
+configure_args="--with-locales-dir=/usr/share/locale --disable-static"
 hostmakedepends="pkg-config intltool"
 makedepends="libxfce4ui-devel libnotify-devel upower-devel xfce4-panel-devel"
 depends="hicolor-icon-theme desktop-file-utils"
@@ -12,4 +12,4 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://xfce.org/"
 distfiles="https://archive.xfce.org/src/xfce/$pkgname/${version%.*}/$pkgname-$version.tar.bz2"
-checksum=45368ccf70f5a87ba9c8b732e2462ecbc0184550e7cc54a58cbeb74086e7124b
+checksum=eb9c587c01b502fa45a32e7fc2aba98fa6d8391475133883654f77e562c43bf3

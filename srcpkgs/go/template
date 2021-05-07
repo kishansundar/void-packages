@@ -1,6 +1,6 @@
 # Template file for 'go'
 pkgname=go
-version=1.14
+version=1.16.3
 revision=1
 create_wrksrc=yes
 build_wrksrc=go
@@ -9,21 +9,20 @@ short_desc="Go Programming Language"
 maintainer="Michael Aldridge <maldridge@voidlinux.org>"
 license="BSD-3-Clause"
 homepage="http://golang.org/"
+changelog="https://golang.org/doc/devel/release.html"
 distfiles="https://golang.org/dl/go${version}.src.tar.gz"
-checksum=6d643e46ad565058c7a39dac01144172ef9bd476521f42148be59249e4b74389
+checksum=b298d29de9236ca47a023e382313bcc2d2eed31dfa706b60a04103ce83a71a25
 nostrip=yes
 noverifyrdeps=yes
 
 case "${XBPS_TARGET_MACHINE}" in
 	aarch64*) _goarch=arm64 ;;
 	arm*) _goarch=arm ;;
-	mips*) _goarch=mips ;;
 	i686*) _goarch=386 ;;
 	x86_64*) _goarch=amd64 ;;
 	ppc64le*) _goarch=ppc64le ;;
-	ppc64*) _goarch=ppc64;;
-	ppc*) broken="Upstream does not support 32-bit ppc";;
-	*) _goarch=${XBPS_TARGET_MACHINE} ;;
+	mips*) _goarch=mips ;;
+	*) broken="Unsupported architecture ${XBPS_TARGET_MACHINE}" ;;
 esac
 
 if [ "$CROSS_BUILD" ]; then

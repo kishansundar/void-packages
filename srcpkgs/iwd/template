@@ -1,28 +1,32 @@
 # Template file for 'iwd'
 pkgname=iwd
-version=1.5
+version=1.13
 revision=1
 build_style=gnu-configure
 configure_args="--disable-systemd-service --enable-pie
- --enable-external-ell --enable-dbus-policy --enable-wired"
-hostmakedepends="python3-docutils pkg-config automake libtool"
-makedepends="readline-devel dbus-devel ell-devel"
-depends="dbus ell>=0.28"
-checkdepends="python3"
+ --enable-dbus-policy --enable-wired"
+hostmakedepends="python3-docutils pkg-config"
+makedepends="readline-devel dbus-devel"
+depends="dbus"
+checkdepends="python3 $depends"
 short_desc="Internet Wireless Daemon by Intel that aims to replace wpa_supplicant"
-maintainer="Peter Bui <pbui@github.bx612.space>"
+maintainer="Érico Nogueira <ericonr@disroot.org>"
 license="LGPL-2.1-or-later"
 homepage="https://iwd.wiki.kernel.org/"
 changelog="https://git.kernel.org/pub/scm/network/wireless/iwd.git/plain/ChangeLog"
-distfiles="${KERNEL_SITE}/network/wireless/iwd-${version}.tar.xz"
-checksum=13d36dcec625ae8ef54e4be5fb0b65db598c68ab0b4d70ff6c557f7954d259aa
+distfiles="${KERNEL_SITE}/network/wireless/${pkgname}-${version}.tar.xz"
+checksum=b005f7ed0f0a96a2c6181c44560fc868533a18e7034bd4cb43ea0d40c21b4e7a
 make_dirs="/var/lib/iwd 0600 root root
+ /var/lib/ead 0600 root root
  /etc/iwd 755 root root"
+# tests depend on kernel features
+make_check=extended
 
-pre_configure() {
-	autoreconf -fi
+do_check() {
+	dbus-run-session make check
 }
 
 post_install() {
+	vsv ead
 	vsv iwd
 }

@@ -1,34 +1,28 @@
 # Template file for 'shiboken2'
 pkgname=shiboken2
-version=5.14.1
+version=5.15.2
 revision=1
 _pkgname="pyside-setup-opensource-src-${version}"
-wrksrc="$_pkgname"
-configure_args="-DUSE_PYTHON_VERSION=3 -DCMAKE_INSTALL_PREFIX=/usr
- -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF"
+wrksrc="${_pkgname/%5.14.2.1/5.14.2}"
+build_wrksrc="sources/shiboken2"
+build_style=cmake
 hostmakedepends="cmake python3-devel"
 makedepends="python3-devel qt5-devel qt5-xmlpatterns-devel clang libxml2-devel
  libxslt-devel python3-numpy"
+depends="clang"
 short_desc="Python binding generator of Qt5 C++ API"
 maintainer="yopito <pierre.bourgin@free.fr>"
 license="GPL-3.0-or-later"
 homepage="https://wiki.qt.io/Qt_for_Python/Shiboken"
 distfiles="https://download.qt.io/official_releases/QtForPython/pyside2/PySide2-${version}-src/${_pkgname}.tar.xz"
-checksum=41ce931695567639c92acb68a9d66ed5609f067011af9a94b53fc0d697ad1d1c
+checksum=b306504b0b8037079a8eab772ee774b9e877a2d84bab2dbefbe4fa6f83941418
+
 python_version=3
+export CLANG_INSTALL_DIR=${XBPS_CROSS_BASE}/usr
 
-do_build() {
-	[ ! -d build ] && mkdir build
-	pushd build
-	export CLANG_INSTALL_DIR=/usr
-	cmake ../sources/shiboken2 ${configure_args}
-	make ${makejobs}
-	popd
-}
-
-do_install() {
-	make -C build DESTDIR=${DESTDIR} install
-}
+if [ ${CROSS_BUILD} ]; then
+	hostmakedepends+=" qt5-qmake qt5-host-tools shiboken2"
+fi
 
 libshiboken2-devel_package() {
 	depends="${sourcepkg}-${version}_${revision}
@@ -54,18 +48,4 @@ python3-shiboken2_package() {
 	pkg_install() {
 		vmove ${py3_sitelib}
 	}
-}
-
-python3-shiboken_package() {
-	short_desc="Python3 shiboken2 bindings - tranditional dummy pkg"
-	depends="python3-shiboken2-${version}_${revision}"
-	build_style=meta
-	archs=noarch
-}
-
-libshiboken-python3_package() {
-	short_desc="Python3 shiboken2 bindings - tranditional dummy pkg"
-	depends="python3-shiboken2-${version}_${revision}"
-	build_style=meta
-	archs=noarch
 }

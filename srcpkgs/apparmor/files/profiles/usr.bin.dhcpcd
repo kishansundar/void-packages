@@ -1,17 +1,27 @@
 # vim:syntax=apparmor
 
-#include <tunables/global>
+abi <abi/3.0>,
+
+include <tunables/global>
 
 profile dhcpcd /{usr/,}bin/dhcpcd {
-  #include <abstractions/base>
-  #include <abstractions/nameservice>
+  include <abstractions/base>
+  include <abstractions/nameservice>
 
   capability chown,
+  capability fowner,
+  capability fsetid,
+  capability kill,
   capability net_admin,
   capability net_raw,
+  capability setuid,
+  capability setgid,
   capability sys_admin,
+  capability sys_chroot,
+  capability bpf,
 
   network packet dgram,
+  network packet raw,
   network inet raw,
   network inet6 raw,
 
@@ -23,10 +33,13 @@ profile dhcpcd /{usr/,}bin/dhcpcd {
 
   /proc/*/net/if_inet6 r,
   /proc/sys/net/ipv{4,6}/conf/*/* rw,
+  /proc/sys/net/ipv{4,6}/neigh/*/retrans_time_ms w,
+  /proc/sys/net/ipv{4,6}/neigh/*/base_reachable_time_ms w,
 
-  /{var/,}run/dhcpcd{-*,}.pid rwk,
-  /{var/,}run/dhcpcd.sock rw,
-  /{var/,}run/dhcpcd.unpriv.sock rw,
+  /{var/,}run/dhcpcd/ w,
+  /{var/,}run/dhcpcd/{,*.}pid rwk,
+  /{var/,}run/dhcpcd/{,*.}sock rw,
+  /{var/,}run/dhcpcd/unpriv.sock rw,
   /{var/,}run/udev/data/* r,
 
   /sys/devices/**/net/*/uevent r,
@@ -49,5 +62,5 @@ profile dhcpcd /{usr/,}bin/dhcpcd {
   owner @{PROC}/@{pid}/stat r,
 
   # Site-specific additions and overrides. See local/README for details.
-  #include <local/usr.bin.dhcpcd>
+  include if exists <local/usr.bin.dhcpcd>
 }

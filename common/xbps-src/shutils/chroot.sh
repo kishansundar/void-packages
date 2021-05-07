@@ -69,7 +69,7 @@ $(grep -E '^XBPS_.*' "$XBPS_CONFIG_FILE")
 XBPS_MASTERDIR=/
 XBPS_CFLAGS="$XBPS_CFLAGS"
 XBPS_CXXFLAGS="$XBPS_CXXFLAGS"
-XBPS_FFLAGS="-fPIC -pipe"
+XBPS_FFLAGS="$XBPS_FFLAGS"
 XBPS_CPPFLAGS="$XBPS_CPPFLAGS"
 XBPS_LDFLAGS="$XBPS_LDFLAGS"
 XBPS_HOSTDIR=/host
@@ -106,14 +106,20 @@ chroot_prepare() {
         msg_error "Bootstrap not installed in $XBPS_MASTERDIR, can't continue.\n"
     fi
 
-    # Create some required files.
-    if [ -f /etc/localtime ]; then
-        cp -f /etc/localtime $XBPS_MASTERDIR/etc
-    elif [ -f /usr/share/zoneinfo/UTC ]; then
-        cp -f /usr/share/zoneinfo/UTC $XBPS_MASTERDIR/etc/localtime
+    # Some software expects /etc/localtime to be a symbolic link it can read to
+    # determine the name of the time zone, so set up the expected link
+    # structure.
+    if [ -f /usr/share/zoneinfo/UTC ]; then
+        tzfile=/usr/share/zoneinfo/UTC
+        mkdir -p $XBPS_MASTERDIR/usr/share/zoneinfo
+        cp /usr/share/zoneinfo/UTC $XBPS_MASTERDIR/usr/share/zoneinfo/UTC
+        ln -sf ../usr/share/zoneinfo/UTC $XBPS_MASTERDIR/etc/localtime
+    else
+        # Should never happen.
+        msg_warn "No local timezone configuration file created.\n"
     fi
 
-    for f in dev sys proc host boot; do
+    for f in dev sys tmp proc host boot; do
         [ ! -d $XBPS_MASTERDIR/$f ] && mkdir -p $XBPS_MASTERDIR/$f
     done
 
@@ -127,12 +133,12 @@ chroot_prepare() {
     # Copy /etc/hosts from base-files.
     cp -f $XBPS_SRCPKGDIR/base-files/files/hosts $XBPS_MASTERDIR/etc
 
-    mkdir -p $XBPS_MASTERDIR/etc/xbps.d
-    echo "syslog=false" >> $XBPS_MASTERDIR/etc/xbps.d/00-xbps-src.conf
-
     # Prepare default locale: en_US.UTF-8.
     if [ -s ${XBPS_MASTERDIR}/etc/default/libc-locales ]; then
-        echo 'en_US.UTF-8 UTF-8' >> ${XBPS_MASTERDIR}/etc/default/libc-locales
+        printf '%s\n' \
+            'C.UTF-8 UTF-8' \
+            'en_US.UTF-8 UTF-8' \
+            >> ${XBPS_MASTERDIR}/etc/default/libc-locales
     fi
 
     touch -f $XBPS_MASTERDIR/.xbps_chroot_init
@@ -175,7 +181,9 @@ chroot_handler() {
             ${HTTP_PROXY_AUTH:+HTTP_PROXY_AUTH="${HTTP_PROXY_AUTH}"} \
             ${FTP_RETRIES:+FTP_RETRIES="${FTP_RETRIES}"} \
             SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
+            XBPS_GIT_REVS="$XBPS_GIT_REVS" \
             XBPS_ALLOW_CHROOT_BREAKOUT="$XBPS_ALLOW_CHROOT_BREAKOUT" \
+            ${XBPS_ALT_REPOSITORY:+XBPS_ALT_REPOSITORY=$XBPS_ALT_REPOSITORY} \
             $XBPS_COMMONDIR/chroot-style/${XBPS_CHROOT_CMD:=uunshare}.sh \
             $XBPS_MASTERDIR $XBPS_DISTDIR "$XBPS_HOSTDIR" "$XBPS_CHROOT_CMD_ARGS" \
             /void-packages/xbps-src $XBPS_OPTIONS $action $pkg
@@ -260,6 +268,8 @@ chroot_sync_repodata() {
         fi
     fi
 
+    echo "syslog=false" > $confdir/00-xbps-src.conf
+
     # Copy host repos to the cross root.
     if [ -n "$XBPS_CROSS_BUILD" ]; then
         rm -rf $XBPS_MASTERDIR/$XBPS_CROSS_BASE/etc/xbps.d
@@ -283,15 +293,20 @@ chroot_sync_repodata() {
                     $crossconfdir/20-repository-remote.conf
             fi
         fi
+
+        echo "syslog=false" > $crossconfdir/00-xbps-src.conf
     fi
+
 
     # Copy xbps repository keys to the masterdir.
     mkdir -p $XBPS_MASTERDIR/var/db/xbps/keys
     cp -f $XBPS_COMMONDIR/repo-keys/*.plist $XBPS_MASTERDIR/var/db/xbps/keys
 
     # Make sure to sync index for remote repositories.
-    msg_normal "xbps-src: updating repositories for host ($XBPS_MACHINE)...\n"
-    $XBPS_INSTALL_CMD $XBPS_INSTALL_ARGS -S
+    if [ -z "$XBPS_SKIP_REMOTEREPOS" ]; then
+        msg_normal "xbps-src: updating repositories for host ($XBPS_MACHINE)...\n"
+        $XBPS_INSTALL_CMD $XBPS_INSTALL_ARGS -S
+    fi
 
     if [ -n "$XBPS_CROSS_BUILD" ]; then
         # Copy host keys to the target rootdir.
@@ -299,9 +314,11 @@ chroot_sync_repodata() {
         cp $XBPS_MASTERDIR/var/db/xbps/keys/*.plist \
             $XBPS_MASTERDIR/$XBPS_CROSS_BASE/var/db/xbps/keys
         # Make sure to sync index for remote repositories.
-        msg_normal "xbps-src: updating repositories for target ($XBPS_TARGET_MACHINE)...\n"
-        env -- XBPS_TARGET_ARCH=$XBPS_TARGET_MACHINE \
-            $XBPS_INSTALL_CMD $XBPS_INSTALL_ARGS -r $XBPS_MASTERDIR/$XBPS_CROSS_BASE -S
+        if [ -z "$XBPS_SKIP_REMOTEREPOS" ]; then
+            msg_normal "xbps-src: updating repositories for target ($XBPS_TARGET_MACHINE)...\n"
+            env -- XBPS_TARGET_ARCH=$XBPS_TARGET_MACHINE \
+                $XBPS_INSTALL_CMD $XBPS_INSTALL_ARGS -r $XBPS_MASTERDIR/$XBPS_CROSS_BASE -S
+        fi
     fi
 
     return 0

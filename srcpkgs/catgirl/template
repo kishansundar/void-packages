@@ -1,0 +1,15 @@
+# Template file for 'catgirl'
+pkgname=catgirl
+version=1.7
+revision=1
+build_style=configure
+configure_args="--prefix=/usr"
+make_build_target="all"
+hostmakedepends="pkg-config"
+makedepends="libtls-devel ncurses-devel openssl-devel"
+short_desc="TLS-only terminal IRC client"
+maintainer="Paper <paper@tilde.institute>"
+license="GPL-3.0-or-later"
+homepage="https://git.causal.agency/catgirl/"
+distfiles="https://git.causal.agency/catgirl/snapshot/$pkgname-$version.tar.gz"
+checksum=dec85275eab897a6390c4259115307027829eaf8e790f8f3a4ba5ca78d3b5ffd

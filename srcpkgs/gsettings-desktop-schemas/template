@@ -1,18 +1,18 @@
 # Template file for 'gsettings-desktop-schemas'
 pkgname=gsettings-desktop-schemas
-version=3.34.0
+version=40.0
 revision=1
 build_helper="gir"
 build_style=meson
 configure_args="-Dintrospection=$(vopt_if gir true false)"
-hostmakedepends="pkg-config glib-devel"
+hostmakedepends="gettext pkg-config glib-devel"
 makedepends="libglib-devel"
 short_desc="Collection of GSettings schemas"
 maintainer="Enno Boland <gottox@voidlinux.org>"
 license="LGPL-2.1-or-later"
 homepage="https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=288b04260f7040b0e004a8d59c773cfb4e32df4f1b4a0f9d705c51afccc95ead
+checksum=f1b83bf023c0261eacd0ed36066b76f4a520bbcb14bb69c402b7959257125685
 
 # Package build options
 build_options="gir"

@@ -1,14 +1,18 @@
 # Template file for 'linux4.4'
 pkgname=linux4.4
-version=4.4.215
+version=4.4.261
 revision=1
-wrksrc="linux-${version}"
+wrksrc="linux-${version%.*}"
+short_desc="Linux kernel and modules (${version%.*} series)"
 maintainer="Orphaned <orphan@voidlinux.org>"
-homepage="https://www.kernel.org"
 license="GPL-2.0-only"
-short_desc="The Linux kernel and modules (${version%.*} series)"
-distfiles="${KERNEL_SITE}/kernel/v4.x/linux-${version}.tar.xz"
-checksum=28bcd3d4201da9feefdf3bcd65c516dd674acbbf45681ce3c7d784c53b33fe03
+homepage="https://www.kernel.org"
+distfiles="${KERNEL_SITE}/kernel/v4.x/linux-${version%.*}.tar.xz
+ ${KERNEL_SITE}/kernel/v4.x/patch-${version}.xz"
+checksum="401d7c8fef594999a460d10c72c5a94e9c2e1022f16795ec51746b0d165418b2
+ 7fe0edc77e6ba8d41035488402a2f05c58a64c101cb5556ea0f6e229dc306eed"
+skip_extraction="patch-${version}.xz"
+python_version=2 #unverified
 
 nocross=yes
 nodebug=yes
@@ -17,8 +21,8 @@ noverifyrdeps=yes
 noshlibprovides=yes
 preserve=yes
 
-archs="i686* x86_64* armv7l* aarch64* ppc*"
-hostmakedepends="bc perl kmod uboot-mkimage libressl-devel"
+archs="i686* x86_64* ppc*"
+hostmakedepends="bc perl kmod uboot-mkimage openssl-devel xz"
 
 case "$XBPS_TARGET_MACHINE" in
 	ppc64le*) broken="No ppc64le support";;
@@ -30,6 +34,7 @@ _kernver="${version}_${revision}"
 # These files could be modified when an external module is built.
 mutable_files="
  /usr/lib/modules/${_kernver}/modules.builtin.bin
+ /usr/lib/modules/${_kernver}/modules.builtin.alias.bin
  /usr/lib/modules/${_kernver}/modules.softdep
  /usr/lib/modules/${_kernver}/modules.dep
  /usr/lib/modules/${_kernver}/modules.dep.bin
@@ -38,6 +43,15 @@ mutable_files="
  /usr/lib/modules/${_kernver}/modules.alias
  /usr/lib/modules/${_kernver}/modules.alias.bin
  /usr/lib/modules/${_kernver}/modules.devname"
+
+# reproducible build
+export KBUILD_BUILD_TIMESTAMP=${SOURCE_DATE_EPOCH:-0}
+export KBUILD_BUILD_USER=voidlinux
+export KBUILD_BUILD_HOST=voidlinux
+
+pre_patch() {
+	xzcat $XBPS_SRCDISTDIR/$pkgname-$version/patch-${version}.xz | patch -Np1
+}
 
 do_configure() {
 	# If there's a file called <arch>-dotconfig, use it to
@@ -297,5 +311,6 @@ linux4.4-dbg_package() {
 	short_desc+=" - debugging symbols"
 	pkg_install() {
 		vmove usr/lib/debug
+		vmove "boot/System.map-${_kernver}"
 	}
 }

@@ -1,18 +1,22 @@
 # Template file for 'bijiben'
 pkgname=bijiben
-version=3.34.2
+version=40.0
 revision=1
 build_helper="gir"
 build_style=meson
-hostmakedepends="itstool pkg-config gettext"
-makedepends="clutter-gtk-devel evolution-devel tracker-devel webkit2gtk-devel
- zeitgeist-devel"
-depends="desktop-file-utils tracker zeitgeist"
+configure_args="-Dzeitgeist=true"
+hostmakedepends="itstool pkg-config gettext glib-devel"
+makedepends="clutter-gtk-devel evolution-devel tracker3-devel webkit2gtk-devel
+ zeitgeist-devel libhandy1-devel"
+depends="desktop-file-utils tracker3 zeitgeist"
 short_desc="Intuitive note editor with strong GNOME desktop integration"
 maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-3.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Notes"
 changelog="https://raw.githubusercontent.com/GNOME/bijiben/gnome-${version%.*}/NEWS"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=fbe2c4ea1336f888626e5c402ef330e668e214a93c733fcb9c62dbaade8eb04e
-nocross="evolution-data-server cross"
+checksum=aefa0ac451628c96e54e79ab544203cbad31551c8d9ad2d896ad71da0e110f25
+
+pre_build() {
+	ninja -C build src/libbiji/biji-marshalers.h
+}

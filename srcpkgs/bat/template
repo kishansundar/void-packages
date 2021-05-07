@@ -1,16 +1,16 @@
 # Template file for 'bat'
 pkgname=bat
-version=0.12.1
+version=0.18.0
 revision=1
 build_style=cargo
-hostmakedepends="cmake llvm"
+hostmakedepends="cmake llvm clang"
 makedepends="libcurl-devel libssh2-devel oniguruma-devel"
 short_desc="Cat(1) clone with syntax highlighting and Git integration"
-maintainer="John <johnz@posteo.net>"
+maintainer="John <me@johnnynator.dev>"
 license="Apache-2.0, MIT"
 homepage="https://github.com/sharkdp/bat"
 distfiles="https://github.com/sharkdp/bat/archive/v${version}.tar.gz"
-checksum=1dd184ddc9e5228ba94d19afc0b8b440bfc1819fef8133fe331e2c0ec9e3f8e2
+checksum=49d1b95250050df47753c213b5e48953a029c9e74753cef371051b14c9d629b8
 
 pre_build() {
 	export CFLAGS_${RUST_BUILD//-/_}="${CFLAGS_host}"
@@ -18,7 +18,15 @@ pre_build() {
 }
 
 post_install() {
+	local manpage
 	vlicense LICENSE-MIT
 	vdoc README.md
-	vman doc/bat.1
+	# The manual page is hidden somewhere deep in the build tree
+	manpage=$(find ${wrksrc}/target -name bat.1 | head -n1)
+	vman ${manpage}
+	# Completions are also hidden somewhere deep in the build tree
+	fish_completion=$(find ${wrksrc}/target -name bat.fish | head -n1)
+	vcompletion ${fish_completion} fish
+	zsh_completion=$(find ${wrksrc}/target -name bat.zsh | head -n1)
+	vcompletion ${zsh_completion} zsh
 }

@@ -1,7 +1,8 @@
 # Template file for 'fpc'
 pkgname=fpc
-version=3.0.4
-revision=2
+version=3.2.0
+revision=1
+archs="x86_64* i686* ppc64le ppc64 ppc"
 create_wrksrc=yes
 build_wrksrc="${pkgname}build-${version}"
 conf_files="/etc/fpc.cfg /etc/fppkg.cfg"
@@ -9,29 +10,60 @@ hostmakedepends="rpmextract"
 makedepends="ncurses-devel zlib-devel expat-devel"
 short_desc="Free Pascal Compiler"
 maintainer="Leah Neukirchen <leah@vuxu.org>"
-license="GPL-2, LGPL-2.1, FPC-FPR"
+license="GPL-2.0-or-later, LGPL-2.1-or-later"
 homepage="http://freepascal.org/"
 distfiles="${SOURCEFORGE_SITE}/freepascal/Source/${version}/${pkgname}build-${version}.tar.gz"
-checksum=f66514e6f2c2e4e1bccccb4d554c24b77682ed61c87811ae5dd210f421855e76
+checksum=f9b914eace989a023fb953da203dc0d973b44487568b4138c7d5b9613d7d6838
 case "$XBPS_TARGET_MACHINE" in
 x86_64*)
 	distfiles+=" ${SOURCEFORGE_SITE}/freepascal/Linux/${version}/${pkgname}-${version}-1.x86_64.rpm"
-	checksum+=" c7b75f09174a502d8dd776fbfabcad3e4360494fd635445185159b21001d65f1"
+	checksum+=" 1f74e1ad3ced2dd67688fdb92edd42e73cdc31ef96056f8739449d70a9306f2c"
 	;;
 i686*)
 	distfiles+=" ${SOURCEFORGE_SITE}/freepascal/Linux/${version}/${pkgname}-${version}-1.i686.rpm"
-	checksum+=" a8f1ea31c63e8cd96dbdecf02af97311f14629babe58b4bd18ecfa094a13ad45"
+	checksum+=" 05c5600c9461362a08df100cf50ca125cb2b4d5bfe4da48cf8c144f2bf4617a2"
+	;;
+ppc64le*)
+	distfiles+=" ${SOURCEFORGE_SITE}/freepascal/Linux/${version}/${pkgname}-${version}.powerpc64le-linux.tar"
+	checksum+=" 9bf59ae3d336f0de4624c63e4e892ea95de4be2ca66182d185defc50b69b65f3"
+	;;
+ppc64*)
+	distfiles+=" ${SOURCEFORGE_SITE}/freepascal/Linux/${version}/${pkgname}-${version}.powerpc64-linux.tar"
+	checksum+=" b7700e126ae37f32ee03c6113c4d07c8b97e451022419387a1da7744dfaa7e25"
+	;;
+ppc*)
+	distfiles+=" ${SOURCEFORGE_SITE}/freepascal/Linux/${version}/${pkgname}-${version}.powerpc-linux.tar"
+	checksum+=" cd35d8f520ddcd3020862658b9a5273724dbaab1e265d5e227cefb59173de81d"
 	;;
 esac
 # TODO: figure out cross-build and how to unwrap the ARM .tar.
 nocross=yes
 nopie=yes
-archs="x86_64* i686*"
+noverifyrdeps=yes
 
 post_extract() {
-	# relative links needed
-	ln -sf ../lib64/fpc/${version}/ppcx64 usr/bin
-	ln -sf ../lib/fpc/${version}/ppc386 usr/bin
+	# extract recursive tar files or otherwise post-process.
+	case "$XBPS_TARGET_MACHINE" in
+	ppc*)
+		case "$XBPS_TARGET_MACHINE" in
+			ppc64*) PPC_SUFFIX="64";;
+		esac
+		mkdir ${wrksrc}/usr
+		cd ${wrksrc}/${pkgname}-${version}.powerpc${PPC_SUFFIX}-linux
+		for f in $(bsdtar -tf binary.powerpc${PPC_SUFFIX}-linux.tar)
+		do
+			bsdtar -xOf binary.powerpc${PPC_SUFFIX}-linux.tar $f | bsdtar -C ${wrksrc}/usr -xzf -
+		done
+		cd ${wrksrc}
+		ln -sf ../lib/fpc/${version}/ppcppc${PPC_SUFFIX} usr/bin
+		;;
+	x86_64*|i686*)
+		# relative links needed
+		ln -sf ../lib64/fpc/${version}/ppcx64 usr/bin
+		ln -sf ../lib/fpc/${version}/ppc386 usr/bin
+		;;
+	esac
+
 
 	# tweak PT_INTERP for musl targets
 	case "$XBPS_TARGET_MACHINE" in
@@ -57,7 +89,6 @@ do_install() {
 	PATH=$DESTDIR/usr/bin:$PATH \
 		$DESTDIR/usr/lib/fpc/${version}/samplecfg \
 			$DESTDIR/usr/lib/fpc/${version} $DESTDIR/etc
-	sed -i "s,${DESTDIR},,g" $DESTDIR/etc/*.cfg $DESTDIR/etc/fppkg/* $DESTDIR/usr/lib/fpc/${version}/ide/text/*
+	sed -i "s,${DESTDIR},,g" $DESTDIR/etc/*.cfg $DESTDIR/etc/fppkg/default $DESTDIR/usr/lib/fpc/${version}/ide/text/*
 	vlicense fpcsrc/rtl/COPYING.FPC
 }
-

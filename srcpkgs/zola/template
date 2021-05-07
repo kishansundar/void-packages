@@ -1,23 +1,21 @@
 # Template file for 'zola'
 pkgname=zola
-version=0.10.0
+version=0.13.0
 revision=1
 build_style=cargo
 hostmakedepends="pkg-config"
-makedepends="libressl-devel libsass-devel oniguruma-devel"
+makedepends="libsass-devel oniguruma-devel"
 short_desc="Fast opinionated static site generator written in rust"
 maintainer="Carson Page <pagem.carson@gmail.com>"
 license="MIT"
 homepage="https://github.com/getzola/zola"
 changelog="https://github.com/getzola/zola/raw/master/CHANGELOG.md"
 distfiles="https://github.com/getzola/zola/archive/v${version}.tar.gz"
-checksum=af8160f1536c9b69153dc041a2e23f359b6acb2a9a2235333e887397d8a6634d
+checksum=84c20cf5c851a465266c5cc343623752102c53929f6da31b2a4ce747a87c5c23
 
-broken="https://build.voidlinux.org/builders/x86_64-musl_builder/builds/26379/steps/shell_3/logs/stdio"
-
-case $XBPS_TARGET_MACHINE in
-	ppc*) broken="segfaults" ;;
-	armv6l-musl) broken="triggers segfault in rustc" ;;
+case "$XBPS_TARGET_MACHINE" in
+	x86_64*|i686*|arm*|aarch64*) ;;
+	*) broken="ftbfs in ring" ;;
 esac
 
 pre_build() {
@@ -28,11 +26,10 @@ pre_build() {
 post_install() {
 	vlicense LICENSE
 
-	ln -sr ${DESTDIR}/usr/bin/zola ${DESTDIR}/usr/bin/gutenberg
+	ln -s zola ${DESTDIR}/usr/bin/gutenberg
 }
 
 gutenberg_package() {
-	archs=noarch
 	depends="zola-${version}_${revision}"
 	short_desc="Transition package for Zola"
 	pkg_install() {

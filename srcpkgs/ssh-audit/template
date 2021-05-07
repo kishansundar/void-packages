@@ -1,18 +1,24 @@
 # Template file for 'ssh-audit'
 pkgname=ssh-audit
-version=2.1.1
+version=2.4.0
 revision=1
-archs=noarch
+build_style="python3-module"
+hostmakedepends="python3-setuptools"
 depends="python3"
-short_desc="SSH server auditing"
+checkdepends="python3-pytest"
+short_desc="SSH server & client auditing"
 maintainer="Andrew Benson <abenson+void@gmail.com>"
 license="MIT"
 homepage="https://github.com/jtesta/ssh-audit"
 distfiles="https://github.com/jtesta/ssh-audit/archive/v${version}.tar.gz"
-checksum=e70d7dfb98fa4941f07424783a2f601c9e3920eb33da53997c13b9d7d2720dcb
+checksum=87c634171d3e0c69297fceeb98dead9a816d5d56c8dcd138f8411fdf58085b6f
 python_version=3
 
-do_install() {
-	vbin ssh-audit.py ssh-audit
+do_check() {
+	PYTHONPATH=build/lib python3 -m pytest
+}
+
+post_install() {
 	vlicense LICENSE
+	vman ssh-audit.1
 }

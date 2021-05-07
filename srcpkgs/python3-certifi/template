@@ -1,15 +1,18 @@
 # Template file for 'python3-certifi'
 pkgname=python3-certifi
-version=2019.11.28
-revision=2
-archs=noarch
+version=2020.12.05
+revision=1
 wrksrc="python-certifi-${version}"
 build_style=python3-module
-pycompile_module="certifi.py"
 hostmakedepends="python3-setuptools"
 short_desc="Curated collection of Root Certificates"
 maintainer="Karl Nilsson <karl.robert.nilsson@gmail.com>"
 license="MPL-2.0"
 homepage="https://certifi.io"
 distfiles="https://github.com/certifi/python-certifi/archive/${version}.tar.gz"
-checksum=5a6dd04a9bf487ad684ca9d7d21a09b0656eb98c2272906af92cdbdea4aab60f
+checksum=2434d33b445587b2f767fc56390589809b799fb218b5fb97697ed93989953adf
+
+do_check() {
+	cd build/lib
+	python3 -c 'import certifi as m; print(m)'
+}

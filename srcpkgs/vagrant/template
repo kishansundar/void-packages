@@ -1,6 +1,6 @@
 # Template file for 'vagrant'
 pkgname=vagrant
-version=2.2.7
+version=2.2.15
 revision=1
 archs="i686 x86_64*"
 hostmakedepends="ruby"
@@ -11,11 +11,11 @@ maintainer="Andrea Brancaleoni <abc@pompel.me>"
 license="MIT"
 homepage="https://www.vagrantup.com/"
 distfiles="https://github.com/mitchellh/${pkgname}/archive/v${version}.tar.gz"
-checksum=a9229f6eba67dd51dfd6125dc578d1d0d724f2620f7d9a68cd46fa886df061fc
+checksum=98c9c726d5cb7e46793b4505f3d907b2a0673e0f6e43997c218a0be5330cc83f
 nocross=yes
 
 post_extract() {
-	sed -i 's|\,\ "<\ 2\.5"||g' $pkgname.gemspec
+	sed -i 's|\,\ "<\ 2\.7"||g' $pkgname.gemspec
 }
 
 do_build() {

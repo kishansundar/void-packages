@@ -26,6 +26,12 @@ for f in $XBPS_SHUTILSDIR/*.sh; do
     . $f
 done
 
+last="${XBPS_DEPENDS_CHAIN##*,}"
+case "$XBPS_DEPENDS_CHAIN" in
+    *,$last,*)
+        msg_error "Build-time cyclic dependency$last,${XBPS_DEPENDS_CHAIN##*,$last,} detected.\n"
+esac
+
 setup_pkg "$PKGNAME" $XBPS_CROSS_BUILD
 readonly SOURCEPKG="$sourcepkg"
 
@@ -34,9 +40,6 @@ check_pkg_arch $XBPS_CROSS_BUILD
 
 if [ -z "$XBPS_CROSS_PREPARE" ]; then
     prepare_cross_sysroot $XBPS_CROSS_BUILD || exit $?
-fi
-if [ -z "$XBPS_DEPENDENCY" -a -z "$XBPS_TEMP_MASTERDIR" -a -n "$XBPS_KEEP_ALL" -a "$XBPS_CHROOT_CMD" = "proot" ]; then
-    remove_pkg_autodeps
 fi
 # Install dependencies from binary packages
 if [ "$PKGNAME" != "$XBPS_TARGET_PKG" -o -z "$XBPS_SKIP_DEPS" ]; then

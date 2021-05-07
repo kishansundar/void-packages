@@ -1,8 +1,7 @@
 # Template file for 'perl-Net-OpenSSH'
 pkgname=perl-Net-OpenSSH
-version=0.78
+version=0.80
 revision=2
-archs=noarch
 wrksrc="${pkgname/perl-/}-${version}"
 build_style=perl-module
 hostmakedepends="perl"
@@ -15,4 +14,4 @@ license="Artistic-1.0-Perl, GPL-1.0-or-later"
 #changelog="http://cpansearch.perl.org/src/SALVA/Net-OpenSSH-${version}/Changes"
 homepage="https://metacpan.org/release/Net-OpenSSH"
 distfiles="${CPAN_SITE}/Net/Net-OpenSSH-${version}.tar.gz"
-checksum=8f10844542a2824389decdb8edec7561d8199dc5f0250e849a0bb56f7aee880c
+checksum=fee093657df2b361472a2982859588a6e4bc5e1aee8118ece5eebfeafa8daeb3

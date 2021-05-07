@@ -1,20 +1,23 @@
 # Template file for 'konsole'
 pkgname=konsole
-version=19.12.3
+version=21.04.0
 revision=1
 build_style=cmake
-configure_args="-DBUILD_TESTING=OFF"
+configure_args="-DBUILD_TESTING=OFF -GNinja"
 hostmakedepends="pkg-config extra-cmake-modules kcoreaddons qt5-devel
- gettext qt5-qmake kdoctools kconfig"
+ gettext qt5-qmake kdoctools kconfig ninja"
 makedepends="kinit-devel knewstuff-devel knotifyconfig-devel kparts-devel
  kpty-devel"
 short_desc="KDE's Terminal Emulator"
-maintainer="John <johnz@posteo.net>"
+maintainer="John <me@johnnynator.dev>"
 license="GPL-2.0-or-later, LGPL-2.0-or-later, GFDL-1.2-or-later"
-homepage="https://www.kde.org/applications/system/konsole/"
+homepage="https://kde.org/applications/en/system/org.kde.konsole"
 distfiles="${KDE_SITE}/release-service/${version}/src/konsole-${version}.tar.xz"
-checksum=0bde8eb6365c53e96489d0ceb05baa0bb0385ee865492622033164a4c4bfccdc
+checksum=260a1748a065c22d3bb63ffe57bd4bc79067e24a24f6332e5c91317d0e0799b6
 replaces="konsole5>=0"
+# FIXME: after we switch cmake build-style to ninja, remove this as well as
+# the ninja host-dependency and configure_arg as they will become superfluous
+make_cmd=ninja
 
 if [ "$CROSS_BUILD" ]; then
 	configure_args+=" -DDESKTOPTOJSON_EXECUTABLE=/usr/bin/desktoptojson"

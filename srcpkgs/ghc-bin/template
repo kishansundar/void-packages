@@ -1,31 +1,43 @@
 # Template file for 'ghc-bin'
 pkgname=ghc-bin
-version=8.6.5
-revision=2
+version=8.8.4
+revision=1
+archs="i686* x86_64* ppc64le*"
 wrksrc="ghc-${version%[!0-9]}"
-hostmakedepends="ncurses perl libffi libnuma"
+hostmakedepends="perl libffi libnuma"
 depends="ncurses perl gcc libffi-devel gmp-devel"
 short_desc="Glorious Haskell Compiler - precompiled binaries"
-maintainer="Leah Neukirchen <leah@vuxu.org>"
-license="BSD"
+maintainer="Orphaned <orphan@voidlinux.org>"
+license="BSD-3-Clause"
 homepage="http://www.haskell.org/ghc/"
-archs="i686 x86_64*"
 nostrip=yes
 noshlibprovides=yes
 conflicts="ghc>=0 ghc-doc>=0"
 case "$XBPS_TARGET_MACHINE" in
 x86_64)
 	distfiles="https://downloads.haskell.org/~ghc/${version%[!0-9]}/ghc-${version}-x86_64-deb8-linux.tar.xz"
-	checksum=c419fd0aa9065fe4d2eb9a248e323860c696ddf3859749ca96a84938aee49107
+	checksum=51a36892f1264744195274187298d13ac62bce2da86d4ddf76d8054ab90f2feb
 	;;
 x86_64-musl)
 	# create with "make binary-dist"
 	distfiles="https://alpha.de.repo.voidlinux.org/distfiles/ghc-${version}-x86_64-void-linux-musl.tar.xz"
-	checksum=e335578cf199588dbfd5a3c678a4fc0b0d44ec83771a902a01e510b993b3e01e
+	checksum=779647d3f4e6e39da9e13b2559319ede76b4fff1107e4dc369a09aadeecad971
 	;;
 i686)
 	distfiles="https://downloads.haskell.org/~ghc/${version%[!0-9]}/ghc-${version}-i386-deb9-linux.tar.xz"
-	checksum=1cddb907393a669342b1a922dd16d505d9d93d50bd9433a54a8162f8701250dc
+	checksum=43dd954910c9027694312cef0aabc7774d102d0422b7172802cfb72f7d5da3a0
+	;;
+i686-musl)
+	distfiles="https://distfiles.voidlinux.de/ghc-${version}-i386-unknown-linux-musl.tar.xz"
+	checksum=8d84fbab62b3712bdcfb92f7d258a0d15d8295397d84b48716a3c625f09be782
+	;;
+ppc64le)
+	distfiles="https://alpha.de.repo.voidlinux.org/distfiles/ghc-${version}-powerpc64le-void-linux.tar.xz"
+	checksum=4a13d36a3e3d605db02b89269ed727c3ba23c9d03b84b72c1716a910a28f8074
+	;;
+ppc64le-musl)
+	distfiles="https://alpha.de.repo.voidlinux.org/distfiles/ghc-${version}-powerpc64le-void-linux-musl.tar.xz"
+	checksum=b35ba0cb20a05555ac6c2c92f9f090c665e55b3d295d58a801eb88bd4f6baab3
 	;;
 esac
 

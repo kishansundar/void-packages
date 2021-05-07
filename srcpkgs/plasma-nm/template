@@ -1,6 +1,6 @@
 # Template file for 'plasma-nm'
 pkgname=plasma-nm
-version=5.18.3
+version=5.21.5
 revision=1
 build_style=cmake
 configure_args="-DBUILD_TESTING=OFF"
@@ -11,16 +11,11 @@ makedepends="plasma-workspace-devel networkmanager-qt5-devel kdelibs4support-dev
  openconnect-devel ksolid-devel"
 depends="mobile-broadband-provider-info"
 short_desc="NetworkManager Plasma applet"
-maintainer="John <johnz@posteo.net>"
+maintainer="John <me@johnnynator.dev>"
 license="LGPL-2.1-or-later"
-homepage="https://projects.kde.org/projects/plasma/plasma-nm"
+homepage="https://invent.kde.org/plasma/plasma-nm"
 distfiles="${KDE_SITE}/plasma/${version}/${pkgname}-${version}.tar.xz"
-checksum=0d4ead3648169e53ef3e08ec1fc3d67a3ef54a3a51bd246d64bd93473aeb8762
-
-case "$XBPS_TARGET_MACHINE" in
-	armv[56]*) broken="xorg-server-xwayland is not available"
-	;;
-esac
+checksum=9098e660a391e821161ed9ad2361b568297df2b53742a8afe18d6104ac700ba3
 
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" kpackage-devel kconfig-devel kcoreaddons-devel plasma-framework"

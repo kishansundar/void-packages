@@ -1,17 +1,17 @@
 # Template file for 'xf86-input-libinput'
 pkgname=xf86-input-libinput
-version=0.29.0
+version=1.0.1
 revision=1
 build_style=gnu-configure
 hostmakedepends="pkg-config"
 makedepends="libinput-devel xorg-server-devel"
 depends="virtual?xserver-abi-input-24_1"
 short_desc="Generic input driver for the X.Org server based on libinput"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="skmpz <dem.procopiou@gmail.com>"
 license="MIT"
 homepage="https://xorg.freedesktop.org/"
 distfiles="${XORG_SITE}/driver/${pkgname}-${version}.tar.bz2"
-checksum=c28b56a21754b972db31798e6a4cf4dc9d69208d08f8fe41701a94def5e94bee
+checksum=fddec49c115591918475155bf16aaf23017d7f814cee7823a0c11f867aca245b
 lib32disabled=yes
 
 post_install() {

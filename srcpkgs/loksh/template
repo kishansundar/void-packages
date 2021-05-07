@@ -1,18 +1,16 @@
 # Template file for 'loksh'
 pkgname=loksh
-version=6.6
+version=6.9
 revision=1
-build_style=gnu-makefile
-make_build_args="HAVE_LIBBSD=1"
-make_install_args="BIN_NAME=loksh"
+build_style=meson
 hostmakedepends="pkg-config"
-makedepends="libbsd-devel ncurses-devel"
+makedepends="ncurses-devel"
 short_desc="Linux port of OpenBSD's ksh"
-maintainer="Renato Aguiar <renato@renag.me>"
+maintainer="Renato Aguiar <renato@renatoaguiar.net>"
 license="custom:Public Domain"
 homepage="https://github.com/dimkr/loksh"
-distfiles="https://github.com/dimkr/loksh/archive/${version}.tar.gz"
-checksum=97a020df82ceebe216c5a306e87360c5e3398d7403347aaff50978446ccb764d
+distfiles="https://github.com/dimkr/loksh/releases/download/${version}/loksh-${version}.tar.xz"
+checksum=1633048cd5f1270c5fa28ab49d9cb9f7e8305ab6880601b0c15b88ecb92450f9
 register_shell="/bin/loksh"
 
 alternatives="
@@ -25,6 +23,9 @@ alternatives="
 post_install() {
 	vlicense LEGAL
 
+	mv ${DESTDIR}/usr/bin/ksh ${DESTDIR}/usr/bin/loksh
+	mv ${DESTDIR}/usr/share/man/man1/ksh.1 \
+	   ${DESTDIR}/usr/share/man/man1/loksh.1
 	mv ${DESTDIR}/usr/share/man/man1/sh.1 \
 	   ${DESTDIR}/usr/share/man/man1/loksh-sh.1
 }

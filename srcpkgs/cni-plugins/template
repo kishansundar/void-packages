@@ -1,6 +1,6 @@
 # Template file for 'cni-plugins'
 pkgname=cni-plugins
-version=0.8.5
+version=0.9.1
 revision=1
 wrksrc="plugins-${version}"
 build_style=go
@@ -10,7 +10,7 @@ maintainer="Cameron Nemo <cnemo@tutanota.com>"
 license="Apache-2.0"
 homepage="https://github.com/containernetworking/plugins"
 distfiles="https://github.com/containernetworking/plugins/archive/v${version}.tar.gz"
-checksum=9d1526ed965ac6562fd95a931ab2346b3c5efd58c2f569038ba3c530f7e66472
+checksum=35e96c6c47b9d080d1cbdcfca02808b01a95464607cd2a2c971b3ad596285928
 
 do_build() {
 	./build_linux.sh

@@ -1,7 +1,7 @@
 # Template file for 'telegram-desktop'
 pkgname=telegram-desktop
-version=1.9.21
-revision=1
+version=2.7.4
+revision=2
 wrksrc="tdesktop-${version}-full"
 build_style=cmake
 build_helper="qemu"
@@ -10,25 +10,22 @@ configure_args="-DTDESKTOP_API_ID=209235
  -DDESKTOP_APP_USE_GLIBC_WRAPS=OFF
  -DDESKTOP_APP_DISABLE_CRASH_REPORTS=ON
  -DTDESKTOP_LAUNCHER_BASENAME=org.telegram.desktop.desktop
- -DTDESKTOP_DISABLE_REGISTER_CUSTOM_SCHEME=ON
- -DTDESKTOP_USE_PACKAGED_TGVOIP=OFF
- -DDESKTOP_APP_USE_PACKAGED_EXPECTED=OFF
- -DDESKTOP_APP_USE_PACKAGED_VARIANT=OFF
- -DDESKTOP_APP_USE_PACKAGED_GSL=OFF
  -DDESKTOP_APP_DISABLE_SPELLCHECK=$(vopt_if spellcheck 'false' 'true')"
 hostmakedepends="pkg-config qt5-qmake qt5-host-tools python"
 makedepends="alsa-lib-devel ffmpeg-devel libdbusmenu-glib-devel libopenal-devel
  minizip-devel opus-devel xxHash-devel pulseaudio-devel qt5-devel range-v3
- libva-devel rapidjson liblz4-devel liblzma-devel rlottie-devel
- MesaLib-devel libdbusmenu-qt5-devel $(vopt_if spellcheck enchant2-devel)"
-depends="qt5-imageformats qt5>=5.13.2<5.13.3"
+ libva-devel rapidjson liblz4-devel liblzma-devel gtk+3-devel
+ MesaLib-devel libdbusmenu-qt5-devel qt5-wayland-devel libatomic-devel
+ xcb-util-keysyms-devel $(vopt_if spellcheck hunspell-devel)
+ kwayland-devel glibmm-devel tg_owt webkit2gtk-devel"
+depends="qt5-imageformats qt5-core>=5.15.2<5.16.0"
 short_desc="Telegram Desktop messaging app"
-maintainer="John <johnz@posteo.net>"
-license="GPL-3.0-or-later WITH OpenSSL"
+maintainer="John <me@johnnynator.dev>"
+license="GPL-3.0-or-later, OpenSSL"
 homepage="https://desktop.telegram.org/"
 changelog="https://github.com/telegramdesktop/tdesktop/blob/v${version}/changelog.txt"
 distfiles="https://github.com/telegramdesktop/tdesktop/releases/download/v${version}/tdesktop-${version}-full.tar.gz"
-checksum=e1f9b58c1475a5044bc4d7a7ed5f89777e717ea5e6126707105e2c2d3032ffac
+checksum=97526f0b4adf04cf86b605ae84f3efaacf58eb8f828bab8f4fe752a4fac62fb2
 
 build_options="spellcheck"
 build_options_default="spellcheck"
@@ -36,10 +33,6 @@ build_options_default="spellcheck"
 case $XBPS_TARGET_MACHINE in
 	mips*) broken="unsupported";;
 esac
-
-if [ "$XBPS_TARGET_NO_ATOMIC8" ]; then
-	makedepends+=" libatomic-devel"
-fi
 
 if [ "$XBPS_WORDSIZE" -eq 32 ]; then
 	nodebug=yes
@@ -49,19 +42,6 @@ if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" qt5-devel"
 fi
 
-post_extract() {
-	_qt5_dep_ver="${depends#*>=}"
-	_qt5_dep_ver="${_qt5_dep_ver%<*}"
-	_qt5_version="$(xbps-uhelper version qt5)"
-
-	if [[ "${_qt5_version%_*}" != "${_qt5_dep_ver}" ]]; then
-		echo
-		msg_red "Qt5 version doesn't match version listed in \$depends\\n"
-		msg_red "${_qt5_version%_*} does not match ${_qt5_dep_ver}\\n"
-		exit 1
-	fi
-	if [ "$XBPS_TARGET_NO_ATOMIC8" ]; then
-		vsed -e '/desktop-app::external_openal/ a atomic' \
-			-i Telegram/CMakeLists.txt
-	fi
-}
+if [ "$XBPS_TARGET_ENDIAN" = "be" ]; then
+	broken="UI doesn't go beyond initial screen, also LE specific code in networking"
+fi

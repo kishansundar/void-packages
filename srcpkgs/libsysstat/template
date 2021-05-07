@@ -1,16 +1,16 @@
 # Template file for 'libsysstat'
 pkgname=libsysstat
-version=0.4.2
+version=0.4.5
 revision=1
 build_style=cmake
 hostmakedepends="pkg-config lxqt-build-tools qt5-qmake qt5-host-tools"
 makedepends="qt5-devel"
 short_desc="Qt-based interface to system statistics"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="Helmut Pozimski <helmut@pozimski.eu>"
 license="LGPL-2.1-or-later"
 homepage="https://lxqt.org/"
 distfiles="https://github.com/lxqt/libsysstat/releases/download/${version}/libsysstat-${version}.tar.xz"
-checksum=fca482b60fab63bd1eddb594631c76c1373a3b1fcdba19129d49653813e1e967
+checksum=f19b6550d78939cc1ad11c5788e2a7293f7f886d037837cd1cf56ebcdf2b5ed2
 replaces="lxde-libsysstat>=0"
 
 libsysstat-devel_package() {

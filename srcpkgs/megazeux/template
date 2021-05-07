@@ -1,6 +1,6 @@
 # Template file for 'megazeux'
 pkgname=megazeux
-version=2.92b
+version=2.92f
 revision=1
 wrksrc="mzx${version/.}"
 build_style=configure
@@ -13,4 +13,4 @@ maintainer="Adrian Siekierka <kontakt@asie.pl>"
 license="GPL-2.0-or-later"
 homepage="http://www.digitalmzx.net/"
 distfiles="http://vault.digitalmzx.net/download.php?latest=src&ver=${version}>${pkgname}-${version}.tar.xz"
-checksum=1735c098de62d2b779e3150c94e7520d6e1fc1afb0624a77c5b4490a0935a88f
+checksum=239bac1ed064ab2c08679116c25cf5fea49a337dd3835ad0bf661de1663339bc

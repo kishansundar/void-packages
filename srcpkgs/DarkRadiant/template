@@ -1,19 +1,23 @@
 # Template file for 'DarkRadiant'
 pkgname=DarkRadiant
-version=2.7.0
+version=2.12.0
 revision=1
-build_style=gnu-configure
-configure_args="--enable-darkmod-plugins --with-wx-config=wx-config-gtk3"
-hostmakedepends="automake gettext libtool pkg-config"
+build_style=cmake
+build_helper=cmake-wxWidgets-gtk3
+hostmakedepends="pkg-config"
 makedepends="ftgl-devel glew-devel libjpeg-turbo-devel libsigc++-devel
- libvorbis-devel libxml2-devel wxWidgets-gtk3-devel python-devel"
+ libvorbis-devel libxml2-devel wxWidgets-gtk3-devel python3-devel
+ eigen libglib-devel freealut-devel"
+checkdepends="gtest-devel"
 short_desc="Map editor for The Dark Mod and other idTech4/Doom3-based games"
-maintainer="John <johnz@posteo.net>"
+maintainer="John <me@johnnynator.dev>"
 license="GPL-2.0-or-later"
 homepage="https://github.com/codereader/DarkRadiant/"
 distfiles="https://github.com/codereader/DarkRadiant/archive/${version}.tar.gz"
-checksum=1166a6d87f0a54ca661ba9be83d350d657972a2aaecdde5b92ebfb7bc80458c7
+checksum=8c5dc0f7d160dea7e9c735f9739e36462dd8c8719a3022156f9584250fc3b867
 
-pre_configure() {
-	./autogen.sh
+CXXFLAGS="-I${XBPS_CROSS_BASE}/usr/lib/wx/include/gtk3-unicode-3.0"
+
+do_check() {
+	:
 }

@@ -1,21 +1,25 @@
 # Template file for 'libktorrent'
 pkgname=libktorrent
-version=2.1.1
+version=21.04.0
 revision=1
 build_style=cmake
-hostmakedepends="extra-cmake-modules gettext qt5-host-tools qt5-qmake python doxygen"
+hostmakedepends="extra-cmake-modules gettext qt5-host-tools qt5-qmake python3 doxygen"
 makedepends="qt5-devel karchive-devel ksolid-devel kio-devel ki18n-devel
 	kcrash-devel gmp-devel qca-qt5-devel"
 short_desc="BitTorrent protocol implementation"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-or-later"
-homepage="http://ktorrent.pwsp.net"
-distfiles="https://github.com/KDE/libktorrent/archive/v${version}.tar.gz"
-checksum=897d970d8e06c82dfb43757b23e3079731dbb74bca259c559e25b7d574dfece4
+homepage="https://apps.kde.org/en/ktorrent"
+distfiles="${KDE_SITE}/release-service/${version}/src/libktorrent-${version}.tar.xz"
+checksum=3b95d6ae91c416533129a3762742afdf7fea57526a12cded6e75ca2da65e1031
 
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" kcoreaddons"
 fi
+
+pre_check() {
+	export QT_QPA_PLATFORM=offscreen
+}
 
 libktorrent-devel_package() {
 	depends="${sourcepkg}-${version}_${revision} gmp-devel"

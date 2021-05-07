@@ -1,22 +1,16 @@
 # Template file for 'hugo'
 pkgname=hugo
-version=0.68.3
+version=0.83.1
 revision=1
 build_style=go
-go_import_path="github.com/gohugoio/${pkgname}"
-go_build_tags="$(vopt_if extended extended)"
-hostmakedepends="git"
-depends="$(vopt_if pygments python-Pygments)"
+go_import_path="github.com/gohugoio/hugo"
+go_build_tags="extended"
 short_desc="Fast & Modern Static Website Engine"
 maintainer="Andrea Brancaleoni <abc@pompel.me>"
 license="Apache-2.0"
 homepage="https://gohugo.io"
-distfiles="https://${go_import_path}/archive/v${version}.tar.gz"
-checksum=38e743605e45e3aafd9563feb9e78477e72d79535ce83b56b243ff991d3a2b6e
-
-build_options="pygments extended"
-desc_option_pygments="Alternative syntax highlighter"
-desc_option_extended="SASS/SCSS build support for Hugo"
+distfiles="https://github.com/gohugoio/hugo/archive/v${version}.tar.gz"
+checksum=2abc273ffb79576c9347c80d443154db26be9ae15b6ae66f9b75056c3a285157
 
 post_install() {
 	vdoc README.md

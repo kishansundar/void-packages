@@ -1,13 +1,21 @@
 # vim: set ts=4 sw=4 et:
 #
 setup_pkg_depends() {
-    local pkg="$1" out="$2" j _rpkgname _depname _pkgname foo _deps
+    local pkg="$1" out="$2" with_subpkgs="$3" j _rpkgname _depname _pkgname foo _deps collected
 
     if [[ $pkg ]]; then
         # subpkg
         if declare -f ${pkg}_package >/dev/null; then
             ${pkg}_package
         fi
+    elif [[ $with_subpkgs ]]; then
+        collected="${depends}"
+        for pkg in $subpackages; do
+            [[ $pkg ]] || continue
+            ${pkg}_package
+            collected+=" ${depends}"
+        done
+        depends="${collected}"
     fi
 
     for j in ${depends}; do
@@ -24,19 +32,18 @@ setup_pkg_depends() {
             if [ -z "$foo" ]; then
                 msg_error "$pkgver: failed to resolve virtual dependency for '$j' (missing from etc/virtual)\n"
             fi
-            _deps+="$foo "
+            [[ $out ]] && echo "$foo"
         else
             foo="$($XBPS_UHELPER_CMD getpkgdepname ${_depname} 2>/dev/null)"
             if [ -z "$foo" ]; then
                 foo="$($XBPS_UHELPER_CMD getpkgname ${_depname} 2>/dev/null)"
                 [ -z "$foo" ] && foo="${_depname}"
             fi
-            _deps+="$foo "
+            [[ $out ]] && echo "$foo"
         fi
         run_depends+="${_depname} "
     done
 
-    [[ $out && $_deps ]] && echo "$_deps"
     return 0
 }
 
@@ -296,9 +303,9 @@ install_pkg_deps() {
     #
     # Target run time dependencies
     #
-    if [[ ${depends} ]]; then
+    local _cleandeps=$(setup_pkg_depends "" 1 1) || exit 1
+    if [[ ${_cleandeps} ]]; then
         templates=""
-        local _cleandeps=$(setup_pkg_depends "" 1) || exit 1
         for f in ${_cleandeps}; do
             if [ -f $XBPS_SRCPKGDIR/$f/template ]; then
                 templates+=" $f"
@@ -334,6 +341,8 @@ install_pkg_deps() {
                     echo "   [runtime] ${_vpkg}: not found"
                     missing_rdeps+=("$_vpkg")
                 fi
+            elif [[ ${_depname} == ${pkgname} ]]; then
+                    echo "   [runtime] ${_vpkg}: not found (self, ignored)"
             else
                 echo "   [runtime] ${_vpkg}: not found"
                 missing_rdeps+=("$_vpkg")
@@ -359,7 +368,7 @@ install_pkg_deps() {
         (
         curpkgdepname=$($XBPS_UHELPER_CMD getpkgname "$i" 2>/dev/null)
         setup_pkg $curpkgdepname
-        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 \
+        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 XBPS_DEPENDS_CHAIN="$XBPS_DEPENDS_CHAIN, $sourcepkg(host)" \
             $XBPS_LIBEXECDIR/build.sh $sourcepkg $pkg $target $cross_prepare || exit $?
         ) || exit $?
         host_binpkg_deps+=("$i")
@@ -372,7 +381,7 @@ install_pkg_deps() {
 
         curpkgdepname=$($XBPS_UHELPER_CMD getpkgname "$i" 2>/dev/null)
         setup_pkg $curpkgdepname $cross
-        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 \
+        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 XBPS_DEPENDS_CHAIN="$XBPS_DEPENDS_CHAIN, $sourcepkg(${cross:-host})" \
             $XBPS_LIBEXECDIR/build.sh $sourcepkg $pkg $target $cross $cross_prepare || exit $?
         ) || exit $?
         binpkg_deps+=("$i")
@@ -390,7 +399,7 @@ install_pkg_deps() {
             fi
         fi
         setup_pkg $curpkgdepname $cross
-        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 \
+        exec env XBPS_DEPENDENCY=1 XBPS_BINPKG_EXISTS=1 XBPS_DEPENDS_CHAIN="$XBPS_DEPENDS_CHAIN, $sourcepkg(${cross:-host})" \
             $XBPS_LIBEXECDIR/build.sh $sourcepkg $pkg $target $cross $cross_prepare || exit $?
         ) || exit $?
     done

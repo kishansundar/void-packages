@@ -1,18 +1,18 @@
 # Template file for 'qsynth'
 pkgname=qsynth
-version=0.6.0
-revision=1
+version=0.9.2
+revision=2
 build_style=gnu-configure
 build_helper=qmake
 hostmakedepends="pkg-config qt5-tools"
 makedepends="qt5-x11extras-devel jack-devel fluidsynth-devel"
 depends="fluidsynth jack desktop-file-utils hicolor-icon-theme"
 short_desc="Qt GUI Interface for FluidSynth"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="Ulf <void@uw.anonaddy.com>"
 license="GPL-2.0-or-later"
 homepage="http://qsynth.sourceforge.io"
 distfiles="${SOURCEFORGE_SITE}/${pkgname}/${pkgname}-${version}.tar.gz"
-checksum=322a0097b6a74e8ebaf590f76b6acda4489d9ee7c612b97bffbac4e5b1047b9c
+checksum=ee9202178a6453c84d8016e61fd9a364e3dbbd306b4f3658baaa05be29927c3e
 
 if [ "${CROSS_BUILD}" ]; then
 	hostmakedepends+=" qt5-x11extras-devel"

@@ -1,6 +1,6 @@
 # Template file for 's6-portable-utils'
 pkgname=s6-portable-utils
-version=2.2.2.2
+version=2.2.3.1
 revision=1
 build_style=configure
 configure_args="--prefix=/usr --libdir=/usr/lib --includedir=/usr/include
@@ -10,9 +10,10 @@ makedepends="skalibs-devel"
 short_desc="Tiny portable generic utilities (s6-cat, s6-chmod, etc.)"
 maintainer="mobinmob <mobinmob@disroot.org>"
 license="ISC"
-homepage="https://skarnet.org/software/${pkgname}/"
+homepage="https://skarnet.org/software/s6-portable-utils/"
+changelog="https://skarnet.org/software/s6-portable-utils/upgrade.html"
 distfiles="https://skarnet.org/software/${pkgname}/${pkgname}-${version}.tar.gz"
-checksum=63df4ad24c126fd0f0006e90fd3135ff204eaa4f95a7c9e51ec91a82cf5074cc
+checksum=43e68a9abec873b337baeee92075a1c2e22cdfffd595cb91475fdcb10b6441cf
 
 post_install() {
 	vlicense COPYING
@@ -21,7 +22,6 @@ post_install() {
 }
 
 s6-portable-utils-doc_package() {
-	archs=noarch
 	short_desc+=" - documentation"
 	depends="${sourcepkg}>=${version}_${revision}"
 	pkg_install() {

@@ -1,17 +1,17 @@
 # Template file for 'steam'
 pkgname=steam
-version=1.0.0.61
-revision=7
+version=1.0.0.70
+revision=2
 archs="i686 x86_64"
-wrksrc=steam
+wrksrc=steam-launcher
 depends="zenity xz curl dbus freetype gdk-pixbuf hicolor-icon-theme desktop-file-utils
  liberation-fonts-ttf file tar bash coreutils"
 short_desc="Digital distribution client bootstrap package - Valve's steam client"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="Andrew Benson <abenson+void@gmail.com>"
 license="custom: Proprietary license"
 homepage="https://steampowered.com/"
 distfiles="http://repo.steampowered.com/${pkgname}/pool/${pkgname}/s/${pkgname}/${pkgname}_${version}.tar.gz"
-checksum=d66413cce9c9ad441f95c4377103b0c71bda4ac4570ecfc7dd2464fe4ef1bd30
+checksum=9ff88a5778c7b00efb18f324d4cd0c282d5f438dad1201bc3e9822e3ff6a2dff
 repository=nonfree
 
 do_install() {
@@ -30,4 +30,7 @@ do_install() {
 	# Device support for Steam-related hardware (e.g. controllers over Steam Link)
 	vinstall ${FILESDIR}/60-steam-input.rules 644 usr/lib/udev/rules.d
 	vinstall ${FILESDIR}/60-steam-vr.rules 644 usr/lib/udev/rules.d
+
+	# Void-specific documentation.
+	vdoc "${FILESDIR}/README.voidlinux"
 }

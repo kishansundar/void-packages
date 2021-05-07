@@ -1,15 +1,15 @@
 # Template file for 'hdparm'
 pkgname=hdparm
-version=9.58
+version=9.61
 revision=1
 build_style=gnu-makefile
 make_install_args="exec_prefix=/usr sbindir=/usr/bin"
 short_desc="Utility to access IDE device parameters"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="teldra <teldra@rotce.de>"
 license="0BSD" # Upstream is very unclear and names their stuff 'bsd-style'
 homepage="https://sourceforge.net/projects/hdparm/"
 distfiles="${SOURCEFORGE_SITE}/${pkgname}/${pkgname}-${version}.tar.gz"
-checksum=9ae78e883f3ce071d32ee0f1b9a2845a634fc4dd94a434e653fdbef551c5e10f
+checksum=da1a1c3887f10b8397e8e02013caa61142e0e72cb0d73997421ca2f2f4df5343
 
 post_install() {
 	vlicense LICENSE.TXT

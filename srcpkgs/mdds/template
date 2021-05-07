@@ -1,8 +1,12 @@
 # Template file for 'mdds'
+#
+# WARNING: When this package is updated by a point version, libetonyek's
+# configure_args needs to be updated.
+#
+
 pkgname=mdds
 version=1.5.0
-revision=2
-archs=noarch
+revision=3
 build_style=gnu-configure
 hostmakedepends="automake"
 short_desc="Collection of multi-dimensional data structures and indexing algorithms"

@@ -1,8 +1,9 @@
 # Template file for 'stremio-shell'
 pkgname=stremio-shell
-version=4.4.106
+version=4.4.135
 revision=1
-_singleapplication_hash=6fbf6bffc848821d41a09ccd9fc0ede83bbbcdce
+_singleapplication_hash=4aeac8fa3e7e96385ba556346ebb6020e35ffdd8
+_libmpv_hash=822a41a1087daf2911fc336fbd9509f962158fef
 build_style=qmake
 hostmakedepends="qt5-host-tools qt5-qmake"
 makedepends="mpv-devel qt5-webview-devel qt5-webengine-devel
@@ -13,23 +14,23 @@ short_desc="Hub for video content aggregation"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-3.0-or-later"
 homepage="https://www.stremio.com"
-distfiles="https://github.com/Stremio/stremio-shell/archive/${version}.tar.gz
+distfiles="https://github.com/Stremio/stremio-shell/archive/v${version}.tar.gz
  https://github.com/itay-grudev/SingleApplication/archive/${_singleapplication_hash}.tar.gz
- https://dl.strem.io/four/v4.4.10/server.js
- https://dl.strem.io/four/v4.4.10/stremio.asar"
-checksum="bb57fae7ee620438f66f679a95c336e5a0d2819f3a8677607cb41c1ee1a78591
- 11840ed3dc80a909980908e310dc370bca2f7f61c45101fdea00187f620a1ff1
- 52e453dc24e291b863582b250f5633d45d9634cafe24ac68165854b17b31114e
- 8abe09aa0c577b9be05a7343438f9a37718689f74b9d7a124590f5ba3bb2764f"
+ https://github.com/Ivshti/libmpv/archive/${_libmpv_hash}.tar.gz
+ https://dl.strem.io/four/v${version}/server.js
+ https://dl.strem.io/four/v${version}/stremio.asar"
+checksum="f272b7d7f22f7d882f3c19035322d2efb702992d6add98cf8acb996a6a80f84d
+ b5066c6dab3a35459a01b839e3e1c3b1d6d1cb70e83bd245110cd1c86476aa32
+ e0545772ca819236926eb118c2f211f05e01f510c1c1a89758895919ed5718d4
+ 1560580101ec49d577f1840bc4215a584d01ee04a254826194b87f727f73bdc5
+ 03173f78f1de32522c3cad4f3db3e315b7d4f409795e30347aa13c617321ce39"
 skip_extraction="server.js stremio.asar"
-
-if [ "$CROSS_BUILD" ]; then
-	hostmakedepends+=" ${makedepends}"
-fi
 
 post_extract() {
 	rmdir deps/singleapplication
 	mv ../SingleApplication-${_singleapplication_hash} deps/singleapplication
+	rmdir deps/libmpv
+	mv ../libmpv-${_libmpv_hash} deps/libmpv
 }
 
 post_install() {
@@ -48,6 +49,6 @@ post_install() {
 	echo "cd /usr/lib/stremio && exec node server.js" >> stremio-server
 	vbin stremio-server
 
-	mv ${XBPS_SRCDISTDIR}/${pkgname}-${version}/server.js ${DESTDIR}/usr/lib/stremio
-	mv ${XBPS_SRCDISTDIR}/${pkgname}-${version}/stremio.asar ${DESTDIR}/usr/lib/stremio
+	cp ${XBPS_SRCDISTDIR}/${pkgname}-${version}/server.js ${DESTDIR}/usr/lib/stremio
+	cp ${XBPS_SRCDISTDIR}/${pkgname}-${version}/stremio.asar ${DESTDIR}/usr/lib/stremio
 }

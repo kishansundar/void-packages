@@ -1,6 +1,6 @@
 # Template file for 'fmt'
 pkgname=fmt
-version=6.1.2
+version=7.1.3
 revision=1
 build_style=cmake
 configure_args="-DBUILD_SHARED_LIBS=ON -DFMT_DOC=OFF -DFMT_TEST=OFF"
@@ -9,7 +9,7 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="BSD-2-Clause"
 homepage="https://github.com/fmtlib/fmt"
 distfiles="https://github.com/fmtlib/fmt/archive/${version}.tar.gz"
-checksum=1cafc80701b746085dddf41bd9193e6d35089e1c6ec1940e037fcb9c98f62365
+checksum=5cae7072042b3043e12d53d50ef404bbb76949dad1de368d7f993a15c8c05ecc
 
 post_install() {
 	vlicense LICENSE.rst LICENSE

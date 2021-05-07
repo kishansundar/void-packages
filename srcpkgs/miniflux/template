@@ -1,19 +1,18 @@
 # Template file for 'miniflux'
 pkgname=miniflux
-version=2.0.20
+version=2.0.29
 revision=1
+wrksrc="v2-${version}"
 build_style=go
-go_import_path="github.com/miniflux/miniflux"
-go_package="miniflux.app"
+go_import_path="miniflux.app"
 hostmakedepends="git"
-depends="postgresql"
 short_desc="Minimalist and opinionated feed reader written in Go"
-maintainer="Eivind Uggedal <eivind@uggedal.com>"
+maintainer="Frank Steinborn <steinex@nognu.de>"
 license="Apache-2.0"
 homepage="https://miniflux.app"
-changelog="https://raw.githubusercontent.com/miniflux/miniflux/${version}/ChangeLog"
-distfiles="https://github.com/miniflux/miniflux/archive/${version}.tar.gz"
-checksum=d2e91303e18568dc7af65e72039114a396d89e5f705823235c677b0268ec6b09
+changelog="https://raw.githubusercontent.com/miniflux/v2/master/ChangeLog"
+distfiles="https://github.com/miniflux/v2/archive/${version}.tar.gz"
+checksum=dcce29b07738cd2ffe1da3cf1401d8c49ead421a81e2b2239323f3423c867200
 system_accounts="_miniflux"
 
 post_install() {

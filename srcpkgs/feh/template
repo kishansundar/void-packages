@@ -1,6 +1,6 @@
 # Template file for 'feh'
 pkgname=feh
-version=3.3
+version=3.6.3
 revision=1
 build_style=gnu-makefile
 make_use_env=yes
@@ -12,13 +12,13 @@ depends="libjpeg-turbo-tools"
 short_desc="Fast and light imlib2-based image viewer"
 maintainer="Frank Steinborn <steinex@nognu.de>"
 license="MIT-feh"
-homepage="https://feh.finalrewind.org/"
+homepage="https://feh.finalrewind.org"
 changelog="https://raw.githubusercontent.com/derf/feh/master/ChangeLog"
 distfiles="${homepage}/feh-${version}.tar.bz2"
-checksum=f3959958258111d5f7c9fbe2e165c52b9d5987f07fd1f37540a4abf9f9638811
+checksum=437420f37f11614e008d066e2a3bdefcfc78144c8212998b2bacdd5d21ea23b4
 
 pre_build() {
-	sed -i 's|doc/feh/examples|examples/feh|' config.mk
+	vsed -i 's|doc/feh/examples|examples/feh|' config.mk
 }
 
 post_install() {

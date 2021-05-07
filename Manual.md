@@ -8,7 +8,7 @@ packages for XBPS, the `Void Linux` native packaging system.
 * [Introduction](#Introduction)
 	* [Quality Requirements](#quality_requirements)
 	* [Package build phases](#buildphase)
-	* [Package naming conventions](#namingconvention)
+	* [Package naming conventions](#namingconventions)
 		* [Libraries](#libs)
 		* [Language Modules](#language_modules)
 		* [Language Bindings](#language_bindings)
@@ -64,9 +64,11 @@ packages for XBPS, the `Void Linux` native packaging system.
 		* [pycompile](#triggers_pycompile)
 		* [register-shell](#triggers_register_shell)
 		* [system-accounts](#triggers_system_accounts)
+		* [texmf-dist](#triggers_texmf_dist)
 		* [update-desktopdb](#triggers_update_desktopdb)
 		* [x11-fonts](#triggers_x11_fonts)
 		* [xml-catalog](#triggers_xml_catalog)
+	* [Void specific documentation](#documentation)
 	* [Notes](#notes)
 	* [Contributing via git](#contributing)
 * [Help](#help)
@@ -74,17 +76,19 @@ packages for XBPS, the `Void Linux` native packaging system.
 <a id="Introduction"></a>
 ## Introduction
 
-The `void-packages` repository contains all `source` packages that are the
-recipes to download, compile and build binary packages for `Void`.
-Those `source` package files are called `templates`.
+The `void-packages` repository contains all the
+recipes to download, compile and build binary packages for Void Linux.
+These `source` package files are called `templates`.
 
-The `template files` are `GNU bash` shell scripts that must define some required/optional
-`variables` and `functions` that are processed by `xbps-src` (the package builder)
-to generate the resulting binary packages.
+The `template` files are shell scripts that define `variables` and `functions`
+to be processed by `xbps-src`, the package builder, to generate binary packages.
+The shell used by `xbps-src` is GNU bash; `xbps-src` doesn't aim to be
+compatible with POSIX `sh`.
 
-By convention, all templates start with a comment briefly explaining what they
-are. In addition, pkgname and version can't have any characters in them that
-would require them to be quoted, so they are not quoted.
+By convention, all templates start with a comment saying that it is a
+`template file` for a certain package. Most of the lines should be kept under 80
+columns; variables that list many values can be split into new lines, with the
+continuation in the next line indented by one space.
 
 A simple `template` example is as follows:
 
@@ -120,11 +124,11 @@ a binary package named `foo-1.0_1.<arch>.xbps` will be generated in the local re
 <a id="quality_requirements"></a>
 ### Quality Requirements
 
-Follow this list to determine if a piece of software or other technology may be
-permitted in the Void Linux repository. Exceptions to the list are possible,
-and may be accepted, but are extremely unlikely. If you believe you have an
+To be included in the Void repository, software must meet at least one
+of the following requirements. Exceptions to the list are possible,
+and might be accepted, but are extremely unlikely. If you believe you have an
 exception, start a PR and make an argument for why that particular piece of
-software, while not meeting the below requirements, is a good candidate for
+software, while not meeting any of the following requirements, is a good candidate for
 the Void packages system.
 
 1. System: The software should be installed system-wide, not per-user.
@@ -134,6 +138,20 @@ the Void packages system.
 
 1. Required: Another package either within the repository or pending inclusion
    requires the package.
+
+In particular, new themes are highly unlikely to be accepted. Simple shell
+scripts are unlikely to be accepted unless they provide considerable value to a
+broad user base. New fonts may be accepted if they provide value beyond
+aesthetics (e.g. they contain glyphs for a script missing in already packaged
+fonts).
+
+Browser forks, including those based on Chromium and Firefox, are generally not
+accepted. Such forks require heavy patching, maintenance and hours of build time.
+
+Software need to be used in version announced by authors as ready to use by
+the general public - usually called releases. Betas, arbitrary VCS revisions,
+templates using tip of development branch taken at build time and releases
+created by the package maintainer won't be accepted.
 
 <a id="buildphase"></a>
 ### Package build phases
@@ -155,7 +173,11 @@ can be used to perform other operations before configuring the package.
 
 - `build` This phase compiles/prepares the `source files` via `make` or any other compatible method.
 
-- `check` This optional phase checks the result of the `build` phase for example by running `make -k check`.
+- `check` This optional phase checks the result of the `build` phase by running the testsuite provided by the package.
+If the default `do_check` function provided by the build style doesn't do anything, the template should set
+`make_check_target` and/or `make_check_args` appropriately or define its own `do_check` function. If tests take too long
+or can't run in all environments, `make_check` should be set to fitting value or
+`do_check` should be customized to limit testsuite unless `XBPS_CHECK_PKGS` is `full`.
 
 - `install` This phase installs the `package files` into the package destdir `<masterdir>/destdir/<pkgname>-<version>`,
 via `make install` or any other compatible method.
@@ -281,11 +303,11 @@ The following functions are defined by `xbps-src` and can be used on any templat
 	converts gzipped (.gz) and bzipped (.bz2) manpages into plaintext.
 	Example mappings:
 
-	`foo.1` -> `${DESTDIR}/usr/share/man/man1/foo.1`
-	`foo.fr.1` -> `${DESTDIR}/usr/share/man/fr/man1/foo.1`
-	`foo.1p` -> `${DESTDIR}/usr/share/man/man1/foo.1p`
-	`foo.1.gz` -> `${DESTDIR}/usr/share/man/man1/foo.1`
-	`foo.1.bz2` -> `${DESTDIR}/usr/share/man/man1/foo.1`
+	- `foo.1` -> `${DESTDIR}/usr/share/man/man1/foo.1`
+	- `foo.fr.1` -> `${DESTDIR}/usr/share/man/fr/man1/foo.1`
+	- `foo.1p` -> `${DESTDIR}/usr/share/man/man1/foo.1p`
+	- `foo.1.gz` -> `${DESTDIR}/usr/share/man/man1/foo.1`
+	- `foo.1.bz2` -> `${DESTDIR}/usr/share/man/man1/foo.1`
 
 - *vdoc()* `vdoc <file> [<name>]`
 
@@ -331,6 +353,13 @@ The following functions are defined by `xbps-src` and can be used on any templat
 	Note that vsed will call the sed command for every regex specified against
 	every file specified, in the order that they are given.
 
+- *vcompletion()* `<file> <shell> [<command>]`
+
+	Installs shell completion from `file` for `command`, in the correct location
+	and with the appropriate filename for `shell`. If `command` isn't specified,
+	it will default to `pkgname`. The `shell` argument can be one of `bash`,
+	`fish` or `zsh`.
+
 > Shell wildcards must be properly quoted, Example: `vmove "usr/lib/*.a"`.
 
 <a id="global_vars"></a>
@@ -346,6 +375,9 @@ rather than additional binary package names.
 - `CHROOT_READY`  Set if the target chroot (masterdir) is ready for chroot builds.
 
 - `CROSS_BUILD` Set if `xbps-src` is cross compiling a package.
+
+- `XBPS_CHECK_PKGS` Set if `xbps-src` is going to run tests for a package.
+Longer testsuites should only be run in `do_check()` if it is set to `full`.
 
 - `DESTDIR` Full path to the fake destdir used by the source pkg, set to
 `<masterdir>/destdir/${sourcepkg}-${version}`.
@@ -416,10 +448,9 @@ Multiple licenses should be separated by commas, Example: `GPL-3.0-or-later, cus
   Note: `MIT`, `BSD`, `ISC` and custom licenses
   require the license file to be supplied with the binary package.
 
-- `maintainer` A string in the form of `name <user@domain>`.  The
-  email for this field must be a valid email that you can be reached
-  at.  Packages using `users.noreply.github.com` emails will not be
-  accepted.
+- `maintainer` A string in the form of `name <user@domain>`.  The email for this field
+must be a valid email that you can be reached at. Packages using
+`users.noreply.github.com` emails will not be accepted.
 
 - `pkgname` A string with the package name, matching `srcpkgs/<pkgname>`.
 
@@ -430,7 +461,12 @@ the generated `binary packages` have been modified.
 - `short_desc` A string with a brief description for this package. Max 72 chars.
 
 - `version` A string with the package version. Must not contain dashes or underscore
-and at least one digit is required. Shell's variable substition usage is not allowed.
+and at least one digit is required. Using bash's pattern substitution and prefix and
+suffix matching isn't supported, since this field needs to be parsed by
+`xbps-checkvers(1)`. Using variables in this field should be avoided.
+
+Neither `pkgname` or `version` should contain special characters which make it
+necessary to quote them, so they shouldn't be quoted in the template.
 
 <a id="optional_vars"></a>
 #### Optional variables
@@ -455,7 +491,8 @@ in the local repository exists to satisfy the required version. Dependencies
 can be specified with the following version comparators: `<`, `>`, `<=`, `>=`
 or `foo-1.0_1` to match an exact version. If version comparator is not
 defined (just a package name), the version comparator is automatically set to `>=0`.
-Example: `depends="foo blah>=1.0"`. See the `Runtime dependencies` section for more information.
+Example: `depends="foo blah>=1.0"`. See the [Runtime dependencies](#deps_runtime) section
+for more information.
 
 - `bootstrap` If enabled the source package is considered to be part of the `bootstrap`
 process and required to be able to build packages in the chroot. Only a
@@ -479,19 +516,18 @@ Example:
 
   | Variable         | Value                                           |
   |------------------|-------------------------------------------------|
-  | CPAN_SITE        | http://cpan.perl.org/modules/by-module          |
+  | CPAN_SITE        | https://cpan.perl.org/modules/by-module          |
   | DEBIAN_SITE      | http://ftp.debian.org/debian/pool               |
-  | FREEDESKTOP_SITE | http://freedesktop.org/software                 |
-  | GNOME_SITE       | http://ftp.gnome.org/pub/GNOME/sources          |
-  | GNU_SITE         | http://ftp.gnu.org/gnu                          |
-  | KERNEL_SITE      | http://www.kernel.org/pub/linux                 |
-  | MOZILLA_SITE     | http://ftp.mozilla.org/pub                      |
-  | NONGNU_SITE      | http://download.savannah.nongnu.org/releases    |
+  | FREEDESKTOP_SITE | https://freedesktop.org/software                 |
+  | GNOME_SITE       | https://ftp.gnome.org/pub/GNOME/sources          |
+  | GNU_SITE         | https://ftp.gnu.org/gnu                          |
+  | KERNEL_SITE      | https://www.kernel.org/pub/linux                 |
+  | MOZILLA_SITE     | https://ftp.mozilla.org/pub                      |
+  | NONGNU_SITE      | https://download.savannah.nongnu.org/releases    |
   | PYPI_SITE        | https://files.pythonhosted.org/packages/source  |
-  | SOURCEFORGE_SITE | http://downloads.sourceforge.net/sourceforge    |
+  | SOURCEFORGE_SITE | https://downloads.sourceforge.net/sourceforge    |
   | UBUNTU_SITE      | http://archive.ubuntu.com/ubuntu/pool           |
-  | XORG_HOME        | http://xorg.freedesktop.org/wiki/               |
-  | XORG_SITE        | http://www.x.org/releases/individual            |
+  | XORG_SITE        | https://www.x.org/releases/individual            |
   | KDE_SITE         | https://download.kde.org/stable                 |
 
 - `checksum` The `sha256` digests matching `${distfiles}`. Multiple files can be
@@ -545,17 +581,22 @@ phase if `${build_style}` is set to `configure`, `gnu-configure` or
 `gnu-makefile` build methods. By default set to
 `PREFIX=/usr DESTDIR=${DESTDIR}`.
 
-- `make_build_target` The target to be passed in to `${make_cmd}` at the build phase if
-`${build_style}` is set to `configure`, `gnu-configure` or `gnu-makefile`
-build methods. Unset by default (`all` target).
+- `make_build_target` The build target. If `${build_style}` is set to `configure`, `gnu-configure`
+or `gnu-makefile`, this is the target passed to `${make_cmd}` in the build phase; when unset, it
+defaults to `all`. If `${build_style}` is `python3-pep517`, this is the path of the package
+directory that should be built as a Python wheel; when unset, defaults to `.` (the current
+directory with respect to the build).
 
 - `make_check_target` The target to be passed in to `${make_cmd}` at the check phase if
 `${build_style}` is set to `configure`, `gnu-configure` or `gnu-makefile`
 build methods. By default set to `check`.
 
-- `make_install_target` The target to be passed in to `${make_cmd}` at the `install-destdir` phase
-if `${build_style}` is set to `configure`, `gnu-configure` or `gnu-makefile`
-build methods. By default set to `install`.
+- `make_install_target` The installation target. When `${build_style}` is set to `configure`,
+`gnu-configure` or `gnu-makefile`, this is the target passed to `${make_command}` in the install
+phase; when unset, it defaults to `install`. If `${build_style}` is `python-pep517`, this is the
+path of the Python wheel produced by the build phase that will be installed; when unset, the
+`python-pep517` build style will look for a wheel matching the package name and version in the
+current directory with respect to the install.
 
 - `patch_args` The arguments to be passed in to the `patch(1)` command when applying
 patches to the package sources during `do_patch()`. Patches are stored in
@@ -563,6 +604,16 @@ patches to the package sources during `do_patch()`. Patches are stored in
 
 - `disable_parallel_build` If set the package won't be built in parallel
 and `XBPS_MAKEJOBS` has no effect.
+
+- `make_check` Sets the cases in which the `check` phase is run.
+This option should usually be accompanied by a comment explaining why it was set, especially when
+set to `no`.
+Allowed values:
+  - `yes` (the default) to run if `XBPS_CHECK_PKGS` is set.
+  - `extended` to run if `XBPS_CHECK_PKGS` is `full`.
+  - `ci-skip` to run locally if `XBPS_CHECK_PKGS` is set, but not as part of pull request checks.
+  - `no` to never run.
+
 
 - `keep_libtool_archives` If enabled the `GNU Libtool` archives won't be removed. By default those
 files are always removed automatically.
@@ -608,9 +659,14 @@ the `$DESTDIR` which will not be scanned for runtime dependencies. This may be u
 skip files which are not meant to be run or loaded on the host but are to be sent to some
 target device or emulation.
 
+- `ignore_elf_files` White space separated list of machine code files
+in /usr/share directory specified by absolute path, which are expected and allowed.
+
+- `ignore_elf_dirs` White space separated list of directories in /usr/share directory
+specified by absolute path, which are expected and allowed to contain machine code files.
+
 - `nocross` If set, cross compilation won't be allowed and will exit immediately.
-This should be set to a string describing why it fails, or a link to a travis
-buildlog demonstrating the failure.
+This should be set to a string describing why it fails, or a link to a buildlog (from the official builders, CI buildlogs can vanish) demonstrating the failure.
 
 - `restricted` If set, xbps-src will refuse to build the package unless
 `etc/conf` has `XBPS_ALLOW_RESTRICTED=yes`. The primary builders for Void
@@ -623,8 +679,7 @@ to override the guessed list. Only use this if a specific order of subpackages i
 otherwise the default would work in most cases.
 
 - `broken` If set, building the package won't be allowed because its state is currently broken.
-This should be set to a string describing why it is broken, or a link to a travis
-buildlog demonstrating the failure.
+This should be set to a string describing why it is broken, or a link to a buildlog demonstrating the failure.
 
 - `shlib_provides` A white space separated list of additional sonames the package provides on.
 This appends to the generated file rather than replacing it.
@@ -634,6 +689,9 @@ This appends to the generated file rather than replacing it.
 
 - `nopie` Only needs to be set to something to make active, disables building the package with hardening
   features (PIE, relro, etc). Not necessary for most packages.
+
+- `nopie_files` White-space seperated list of ELF binaries that won't be checked
+for PIE.
 
 - `reverts` xbps supports a unique feature which allows to downgrade from broken
 packages automatically. In the `reverts` field one can define a list of broken
@@ -687,8 +745,10 @@ used.
 - `fetch_cmd` Executable to be used to fetch URLs in `distfiles` during the `do_fetch` phase.
 
 - `archs` Whitespace separated list of architectures that a package can be
-built for, available architectures can be found under `common/cross-profiles`
-alongside the `noarch` value for packages that do not contain any machine code.
+built for, available architectures can be found under `common/cross-profiles`.
+In general, `archs` should only be set if the upstream software explicitly targets
+certain architectures or there is a compelling reason why the software should not be
+available on some supported architectures.
 Examples:
 
 	```
@@ -698,41 +758,49 @@ Examples:
 	archs="x86_64-musl ~*-musl"
 	# Default value (all arches)
 	archs="*"
-	# Packages that do not depend on architecture-specific objects
-	archs=noarch
 	```
+A special value `noarch` used to be available, but has since been removed.
 
 <a id="explain_depends"></a>
-#### About the many types of `depends` variable.
+#### About the many types of `depends` variables
 
-So far we have listed four types of `depends`, there are `hostmakedepends`,
-`makedepends`, `checkdepends` and plain old `depends`.To understand the difference
-between them, understand this: Void Linux cross compiles for many arches.
-Sometimes in a build process, certain programs must be run, for example `yacc`, or the
-compiler itself for a C program. Those programs get put in `hostmakedepends`.
-When the build runs, those will be installed on the host to help the build
-complete.
+So far, we have listed four types of `depends` variables: `hostmakedepends`,
+`makedepends`, `checkdepends` and `depends`. These different kinds of variables
+are necessary because `xbps-src` supports cross compilation and to avoid
+installing unecessary packages in the build environment.
 
-Then there are those things for which a package either links against or
-includes header files. These are `makedepends`, and regardless of the
-architecture of the build machine, the architecture of the target machine must
-be used. Typically the `makedepends` will be the only one of the three types of
-`depends` to include `-devel` packages, and typically only `-devel` packages.
+During a build process, there are programs that must be _run_ on the host, such
+as `yacc` or the C compiler. The packages that contain these programs should be
+listed in `hostmakedepends`, and will be installed on the host when building the
+target package. Some of these packages are dependencies of the `base-chroot`
+package and don't need to be listed. It is possible that some of the programs
+necessary to build a project are located in `-devel` packages.
 
-Then there are those things that are required for a package to run its testsuite
-`dejagnu` or libraries it must link to when building test binaries like `cmocka`.
-These are `checkdepends` and they are installed like they are part of `makedepends`.
-the difference is that they are only installed when `XBPS_CHECK_PKGS` is defined.
+The target package can also depend on other packages for libraries to link
+against or header files. These packages should be listed in `makedepends` and
+will match the target architecture, regardless of the architecture of the build
+machine. Typically, `makedepends` will contain mainly `-devel` packages.
 
-The final variable, `depends`, is for those things the package needs at
-runtime and without which is unusable, and that xbps can't auto-detect.
-These are not all the packages the package needs at runtime, but only those
-that are not linked against. This variable is most useful for non-compiled
-programs.
+Furthermore, if `XBPS_CHECK_PKGS` is set or the `-Q` option is passed to
+`xbps-src`, the target package might require specific dependencies or libraries
+that are linked into its test binaries to run its test suite. These dependencies
+should be listed in `checkdepends` and will be installed as if they were part of
+`hostmakedepends`. Some dependencies that can be included in `checkdepends` are:
 
-Finally, as a general rule, if something compiles the exact same way whether or
-not you add a particular package to `makedepends` or `hostmakedepends`, it
-shouldn't be added.
+- `dejagnu`: used for some GNU projects
+- `cmocka-devel`: linked into test binaries
+- `dbus`: makes it possible to run `dbus-run-session <test-command>` to provide
+  a D-Bus session for applications that need it
+- `git`: some test suites run the `git` command
+
+Lastly, a package may require certain dependencies at runtime, without which it
+is unusable. These dependencies, when they aren't detected automatically by
+XBPS, should be listed in `depends`. This is mostly relevant for Perl and Python
+modules and other programs that use `dlopen(3)` instead of dynamically linking.
+
+Finally, as a general rule, if a package is built the exact same way whether or
+not a particular package is present in `makedepends` or `hostmakedepends`, that
+package shouldn't be added as a build time dependency.
 
 <a id="repositories"></a>
 #### Repositories
@@ -861,12 +929,11 @@ that do such things as append (`+=`) to variables, should have `make_use_env`
 set in the body of the template.
 
 - `go` For programs written in Go that follow the standard package
-  structure. The variable `go_import_path` must be set to the package's
-  import path, e.g. `github.com/github/hub` for the `hub` program. If
-  the variable `go_get` is set to `yes`, the package will be
-  downloaded with `go get`. Otherwise (the default) it's expected that
-  the distfile contains the package. In both cases, dependencies will
-  be downloaded with `go get`.
+structure. The variable `go_import_path` must be set to the package's
+import path, e.g. `github.com/github/hub` for the `hub` program. This
+information can be found in the `go.mod` file for modern Go projects.
+It's expected that the distfile contains the package, but dependencies
+will be downloaded with `go get`.
 
 - `meta` For `meta-packages`, i.e packages that only install local files or simply
 depend on additional packages. This build style does not install
@@ -887,8 +954,8 @@ can be used to pass arguments during compilation. If your package does not make 
 extensions consider using the `gem` build style instead.
 
 - `gem` For packages that are installed using gems from [RubyGems](https://rubygems.org/).
-The gem command can be overridden by `gem_cmd`. `archs` is set to `noarch` unconditionally
-and `distfiles` is set by the build style if the template does not do so. If your gem
+The gem command can be overridden by `gem_cmd`.
+`distfiles` is set by the build style if the template does not do so. If your gem
 provides extensions which must be compiled consider using the `gemspec` build style instead.
 
 - `ruby-module` For packages that are ruby modules and are installable via `ruby install.rb`.
@@ -919,8 +986,16 @@ via `make_install_target`.
 via `configure_args`, the meson command can be overridden by `meson_cmd` and the location of
 the out of source build by `meson_builddir`
 
-For packages that use the Python module build method (`setup.py`), you
-can choose one of the following:
+- `void-cross` For cross-toolchain packages used to build Void systems. There are no
+mandatory variables (target triplet is inferred), but you can specify some optional
+ones - `cross_gcc_skip_go` can be specified to skip `gccgo`, individual subproject
+configure arguments can be specified via `cross_*_configure_args` where `*` is `binutils`,
+`gcc_bootstrap` (early gcc), `gcc` (final gcc), `glibc` (or `musl`), `configure_args` is
+additionally passed to both early and final `gcc`. You can also specify custom `CFLAGS`
+and `LDFLAGS` for the libc as `cross_(glibc|musl)_(cflags|ldflags)`.
+
+For packages that use the Python module build method (`setup.py` or
+[PEP 517](https://www.python.org/dev/peps/pep-0517/)), you can choose one of the following:
 
 - `python-module` to build *both* Python 2.x and 3.x modules
 
@@ -928,10 +1003,16 @@ can choose one of the following:
 
 - `python3-module` to build Python 3.x only modules
 
+- `python3-pep517` to build Python 3.x only modules that provide a PEP 517 build description without
+a `setup.py` script
+
 Environment variables for a specific `build_style` can be declared in a filename
 matching the `build_style` name, Example:
 
     `common/environment/build-style/gnu-configure.sh`
+
+- `texmf` For texmf zip/tarballs that need to go into /usr/share/texmf-dist. Includes
+duplicates handling.
 
 <a id="build_helper"></a>
 ### build helper scripts
@@ -955,13 +1036,17 @@ additional paths to be searched when linking target binaries to be introspected.
 - `qemu` sets additional variables for the `cmake` and `meson` build styles to allow
 executing cross-compiled binaries inside qemu.
 It sets `CMAKE_CROSSCOMPILING_EMULATOR` for cmake and `exe_wrapper` for meson
-to `qemu-<target_arch>-static` and `QEMU_LD_PREFIX` to `XBPS_CROSS_BASE`
+to `qemu-<target_arch>-static` and `QEMU_LD_PREFIX` to `XBPS_CROSS_BASE`.
+It also creates the `vtargetrun` function to wrap commands in a call to
+`qemu-<target_arch>-static` for the target architecture.
 
 - `qmake` creates the `qt.conf` configuration file (cf. `qmake` `build_style`)
 needed for cross builds and a qmake-wrapper to make `qmake` use this configuration.
 This aims to fix cross-builds for when the build-style is mixed: e.g. when in a
 `gnu-configure` style the configure script calls `qmake` or a `Makefile` in
 `gnu-makefile` style, respectively.
+
+- `cmake-wxWidgets-gtk3` sets the `WX_CONFIG` variable which is used by FindwxWidgets.cmake
 
 <a id="functions"></a>
 ### Functions
@@ -1162,10 +1247,16 @@ Dependencies declared via `${depends}` are not installed to the master directory
 only checked if they exist as binary packages, and are built automatically by `xbps-src` if
 the specified version is not in the local repository.
 
-There's a special variant of how `virtual` dependencies can be specified as `runtime dependencies`
-and is by using the `virtual?` keyword, i.e `depends="virtual?vpkg-0.1_1"`. This declares
-a `runtime` virtual dependency to `vpkg-0.1_1`; this `virtual` dependency will be simply ignored
-when the package is being built with `xbps-src`.
+As a special case, `virtual` dependencies may be specified as runtime dependencies in the
+`${depends}` template variable. Several different packages can provide common functionality by
+declaring a virtual name and version in the `${provides}` template variable (e.g.,
+`provides="vpkg-0.1_1"`). Packages that rely on the common functionality without concern for the
+specific provider can declare a dependency on the virtual package name with the prefix `virtual?`
+(e.g., `depends="virtual?vpkg-0.1_1"`). When a package is built by `xbps-src`, providers for any
+virtual packages will be confirmed to exist and will be built if necessary. A map from virtual
+packages to their default providers is defined in `etc/default.virtual`. Individual mappings can be
+overridden by local preferences in `etc/virtual`. Comments in `etc/default.virtual` provide more
+information on this map.
 
 <a id="install_remove_files"></a>
 ### INSTALL and REMOVE files
@@ -1231,7 +1322,7 @@ The following variables can be used for this purpose:
 
 - `system_groups` This specifies the names of the new *system groups* to be created, separated
 by blanks. Optionally the **gid** can be specified by delimiting it with a
-colon, i.e `system_groups="mygroup:78"` or `system_groups="foo blah:8000"`.
+colon, i.e `system_groups="_mygroup:78"` or `system_groups="_foo _blah:8000"`.
 
 - `system_accounts` This specifies the names of the new **system users/groups** to be created,
 separated by blanks, i.e `system_accounts="_foo _blah:22"`. Optionally the **uid** and **gid**
@@ -1248,7 +1339,7 @@ The **system user** is created by using a dynamically allocated **uid/gid** in y
 and it's created as a `system account`, unless the **uid** is set. A new group will be created for the
 specified `system account` and used exclusively for this purpose.
 
-System accounts must be prefixed with an underscore to prevent clashing with names of user
+System accounts and groups must be prefixed with an underscore to prevent clashing with names of user
 accounts.
 
 > NOTE: The underscore policy does not apply to old packages, due to the inevitable breakage of
@@ -1396,14 +1487,14 @@ the appropriate `development` packages as dependencies.
 Development packages for the C and C++ languages usually `vmove` the
 following subset of files from the main package:
 
-    * Header files `usr/include`
-    * Static libraries `usr/lib/*.a`
-    * Shared library symbolic links `usr/lib/*.so`
-    * Cmake rules `usr/lib/cmake` `usr/share/cmake`
-    * Package config files `usr/lib/pkgconfig` `usr/share/pkgconfig`
-    * Autoconf macros `usr/share/aclocal`
-    * Gobject introspection XML files `usr/share/gir-1.0`
-    * Vala bindings `usr/share/vala`
+* Header files `usr/include`
+* Static libraries `usr/lib/*.a`
+* Shared library symbolic links `usr/lib/*.so`
+* Cmake rules `usr/lib/cmake` `usr/share/cmake`
+* Package config files `usr/lib/pkgconfig` `usr/share/pkgconfig`
+* Autoconf macros `usr/share/aclocal`
+* Gobject introspection XML files `usr/share/gir-1.0`
+* Vala bindings `usr/share/vala`
 
 <a id="pkgs_data"></a>
 ### Data packages
@@ -1413,7 +1504,7 @@ type used to split architecture independent, big(ger) or huge amounts
 of data from a package's main and architecture dependent part. It is up
 to you to decide, if a `-data` subpackage makes sense for your package.
 This type is common for games (graphics, sound and music), part libraries (CAD)
-or card material (maps). Data subpackages are almost always `archs=noarch`.
+or card material (maps).
 The main package must then have `depends="${pkgname}-data-${version}_${revision}"`,
 possibly in addition to other, non-automatic depends.
 
@@ -1438,10 +1529,22 @@ be your guidance to decide whether or not to split off a `-doc` subpackage.
 Python packages should be built with the `python{,2,3}-module` build style, if possible.
 This sets some environment variables required to allow cross compilation. Support to allow
 building a python module for multiple versions from a single template is also possible.
+The `python3-pep517` build style provides means to build python packages that provide a build-system
+definition compliant with [PEP 517](https://www.python.org/dev/peps/pep-0517/) without a traditional
+`setup.py` script.
 
-To allow cross compilation, the `python-devel` package (for python 2.7) must be added
-to `hostmakedepends` and `makedepends`. If any other python version is also supported,
-for example python3.4, those must also be added as host and target build dependencies.
+Python packages that rely on `python3-setuptools` should generally map `setup_requires`
+dependencies in `setup.py` to `hostmakedepends` in the template and `install_requires`
+dependencies to `depends` in the template; include `python3` in `depends` if there are no other
+python dependencies. If the package includes a compiled extension, the `python3-devel` packages
+should be added to `makedepends`, as should any python packages that also provide native libraries
+against which the extension will be linked (even if that package is also included in
+`hostmakedepends` to satisfy `setuptools`).
+
+**NB**: Python `setuptools` will attempt to use `pip` or `EasyInstall` to fetch any missing
+dependencies at build time. If you notice warnings about `EasyInstall` deprecation or python eggs
+present in `${wrksrc}/.eggs` after building the package, then those packages should be added to
+`hostmakedepends`.
 
 The following variables may influence how the python packages are built and configured
 at post-install time:
@@ -1458,29 +1561,25 @@ by blanks, Example: `pycompile_module="foo blah"`. If a python module installs a
 recursively by the target python version. This differs from `pycompile_module` in that any
 path may be specified, Example: `pycompile_dirs="usr/share/foo"`.
 
-- `pycompile_version`: this variable expects the python version that is used to
-byte-compile the python code (it generates the `.py[co]` files at post-install time).
-By default it's set to `2.7` for `python 2.x` packages.
-
-> NOTE: you need to define it *only* for non-Python modules.
-
 - `python_version`: this variable expects the supported Python major version.
 By default it's set to `2`. This variable is needed for multi-language
 applications (e.g., the application is written in C while the command is
 written in Python) or just single Python file ones that live in `/usr/bin`.
+
+> NOTE: you need to define it *only* for non-Python modules.
 
 Also, a set of useful variables are defined to use in the templates:
 
 | Variable    | Value                            |
 |-------------|----------------------------------|
 | py2_ver     | 2.X                              |
-| py2_lib     | /usr/lib/python2.X               |
-| py2_sitelib | /usr/lib/python2.X/site-packages |
-| py2_inc     | /usr/include/python2.X           |
+| py2_lib     | usr/lib/python2.X                |
+| py2_sitelib | usr/lib/python2.X/site-packages  |
+| py2_inc     | usr/include/python2.X            |
 | py3_ver     | 3.X                              |
-| py3_lib     | /usr/lib/python3.X               |
-| py3_sitelib | /usr/lib/python3.X/site-packages |
-| py3_inc     | /usr/include/python3.Xm          |
+| py3_lib     | usr/lib/python3.X                |
+| py3_sitelib | usr/lib/python3.X/site-packages  |
+| py3_inc     | usr/include/python3.Xm           |
 
 > NOTE: it's expected that additional subpkgs must be generated to allow packaging for multiple
 python versions.
@@ -1500,10 +1599,6 @@ The following template variables influence how Go packages are built:
   variable is required.
 - `go_package`: A space-separated list of import paths of the packages
   that should be built. Defaults to `go_import_path`.
-- `go_get`: If set to yes, the package specified via `go_import_path`
-  will be downloaded with `go get`. Otherwise, a distfile has to be
-  provided. This option should only be used with `-git` (or similar)
-  packages; using a versioned distfile is preferred.
 - `go_build_tags`: An optional, space-separated list of build tags to
   pass to Go.
 - `go_mod_mode`: The module download mode to use. May be `off` to ignore
@@ -1546,7 +1641,6 @@ The following variables influence how Haskell packages are built:
 Font packages are very straightforward to write, they are always set with the
 following variables:
 
-- `archs=noarch`: Font packages don't install arch specific files.
 - `depends="font-util"`: because they are required for regenerating the font
 cache during the install/removal of the package
 - `font_dirs`: which should be set to the directory where the package
@@ -1577,6 +1671,9 @@ generally those packages are the same but have been split as to avoid
 cyclic dependencies. Make sure that the package you're removing is not
 the source of those patches/files.
 - Remove package template.
+- Add `pkgname<=version_revision` to `replaces` variable of `removed-packages`
+template.  All removed subpkgs should be added too.
+This will uninstall package from systems where it is installed.
 - Remove the package from the repository index
 or contact a team member that can do so.
 
@@ -1894,6 +1991,20 @@ Example: `transmission unprivileged user - for uninstalled package transmission`
 
 This trigger can only be used by using the `system_accounts` variable.
 
+<a id="triggers_texmf_dist"></a>
+#### texmf-dist
+
+The texmf-dist trigger is responsible for regenerating TeXLive's texmf databases.
+
+During both installation and removal, it regenerates both the texhash and format
+databases using `texhash` and `fmtutil-sys`, to add or remove any new hashes or
+formats.
+
+It runs on every package that changes /usr/share/texmf-dist. This is likely overkill,
+but it is much cleaner rather than checking each format directory and each directory
+that is hashed. In addition, it is very likely any package touching /usr/share/texmf-dist
+requires one of these triggers anyway.
+
 <a id="triggers_update_desktopdb"></a>
 #### update-desktopdb
 
@@ -1936,6 +2047,14 @@ During removal it uses `xmlcatmgr` to remove all catalogs passed to it by the
 To include this trigger use the `sgml_entries` variable or/and the `xml_entries` variable,
 as the trigger won't do anything unless either of them are defined.
 
+<a id="documentation"></a>
+### Void specific documentation
+
+When you want document details of package's configuration and usage specific to Void Linux,
+not covered by upstream documentation, put notes into
+`srcpkgs/<pkgname>/files/README.voidlinux` and install with
+`vdoc "${FILESDIR}/README.voidlinux"`.
+
 <a id="notes"></a>
 ### Notes
 
@@ -1958,31 +2077,21 @@ otherwise the `debug` packages won't have debugging symbols.
 <a id="contributing"></a>
 ### Contributing via git
 
-Fork the voidlinux `void-packages` git repository on github and clone it:
+To get started, [fork](https://help.github.com/articles/fork-a-repo) the void-linux `void-packages` git repository on GitHub and clone it:
 
     $ git clone git@github.com:<user>/void-packages.git
 
-You can now make your own commits to the `forked` repository:
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for information on how to format your
+commits and other tips for contributing.
 
-    $ git add ...
-    $ git commit ...
-    $ git push ...
+Once you've made changes to your `forked` repository, submit
+a github pull request.
 
 To keep your forked repository always up to date, setup the `upstream` remote
 to pull in new changes:
 
     $ git remote add upstream git://github.com/void-linux/void-packages.git
-    $ git pull upstream master
-
-Once you've made changes to your `forked` repository you can submit
-a github pull request; see https://help.github.com/articles/fork-a-repo for more information.
-
-For commit messages please use the following rules:
-
-- If you've imported a new package use `"New package: <pkgname>-<version>"`.
-- If you've updated a package use `"<pkgname>: update to <version>."`.
-- If you've removed a package use `"<pkgname>: removed ..."`.
-- If you've modified a package use `"<pkgname>: ..."`.
+    $ git pull --rebase upstream master
 
 <a id="help"></a>
 ## Help

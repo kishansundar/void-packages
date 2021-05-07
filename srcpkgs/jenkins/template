@@ -1,6 +1,6 @@
 # Template file for 'jenkins'
 pkgname=jenkins
-version=2.204.5
+version=2.249.3
 revision=1
 build_style=fetch
 make_dirs="/var/lib/jenkins 0755 jenkins jenkins"
@@ -10,7 +10,7 @@ maintainer="Renato Aguiar <renato@renatoaguiar.net>"
 license="MIT"
 homepage="https://jenkins.io/"
 distfiles="http://mirrors.jenkins.io/war-stable/${version}/jenkins.war"
-checksum=94c73fa5b72e0a4eb52c5c99c08351f85a51d138f3dbaff6f64e4406353f839c
+checksum=8de8f11d5688c79967bc53a8124960926a90d623e5e9f03f1315ccf3e7c49702
 # Create 'jenkins' user
 system_accounts="jenkins"
 jenkins_homedir="/var/lib/jenkins"

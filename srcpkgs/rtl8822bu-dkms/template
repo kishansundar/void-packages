@@ -1,9 +1,8 @@
 # Template file for 'rtl8822bu-dkms'
 pkgname=rtl8822bu-dkms
-version=20190713
+version=20201222
 revision=1
-_gitrev=dea3bb8e631191ded1839c53fb266d80ef7e8ad3
-archs=noarch
+_gitrev=fcfd4ecca1512d4cd2db4aa91679576d2a5ab8eb
 wrksrc="rtl8822bu-${_gitrev}"
 depends="dkms"
 short_desc="Realtek 8822BU USB WiFi driver (DKMS)"
@@ -11,8 +10,27 @@ maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-2.0-only"
 homepage="https://www.tp-link.com"
 distfiles="https://github.com/EntropicEffect/rtl8822bu/archive/${_gitrev}.tar.gz"
-checksum=34474838558a8502edc9bcd1091c8911ec128d50aeda2f83173b36c1a592250c
+checksum=fb2dbcd0385d558af6c74571aaac9020d7cbb9e56cc4780299bd420559f29bb1
 dkms_modules="88x2bu ${version}"
+
+case "$XBPS_TARGET_MACHINE" in
+	x86_64*) _karch="x86_64";;
+	i686*) _karch="i386";;
+	aarch64*) _karch="arm64";;
+	arm*) _karch="arm";;
+	ppc*) _karch="powerpc";;
+	mips*) _karch="mips";;
+	*) broken="kernel arch not defined";;
+esac
+
+post_patch() {
+	if [ "$XBPS_TARGET_ENDIAN" = "be" ]; then
+		vsed -i 's,@@VOID_ENDIAN@@,BIG,g' Makefile
+	else
+		vsed -i 's,@@VOID_ENDIAN@@,LITTLE,g' Makefile
+	fi
+	vsed -i "s,@@VOID_ARCH@@,${_karch},g" Makefile
+}
 
 do_install() {
 	vmkdir /usr/src/88x2bu-${version}

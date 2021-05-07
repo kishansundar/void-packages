@@ -1,17 +1,16 @@
 # Template file for 'phpMyAdmin'
 pkgname=phpMyAdmin
-version=4.9.2
+version=5.0.4
 revision=1
-archs=noarch
 wrksrc="phpMyAdmin-${version}-all-languages"
 conf_files="/etc/webapps/phpMyAdmin/config.inc.php"
 depends="php mysql"
 short_desc="Web interface for MySQL and MariaDB"
 maintainer="Franc[e]sco <lolisamurai@tfwno.gf>"
-license="GPL-2.0-or-later"
+license="GPL-2.0-only"
 homepage="https://www.phpmyadmin.net"
 distfiles="https://files.phpmyadmin.net/phpMyAdmin/${version}/phpMyAdmin-${version}-all-languages.tar.xz"
-checksum=3bc3e37fefbdfcaf12fd59d6d7fdbf11ffcffe3e211155bf5b822b54a3c2043e
+checksum=1578c1a08e594da4f4f62e676ccbdbd17784c3de769b094ba42c35bf05c057db
 
 do_install() {
 	vmkdir usr/share/webapps/

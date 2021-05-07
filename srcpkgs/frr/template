@@ -1,6 +1,6 @@
 # Template file for 'frr'
 pkgname=frr
-version=7.2.1
+version=7.5
 revision=1
 wrksrc="${pkgname}-${pkgname}-${version}"
 build_style=gnu-configure
@@ -9,20 +9,21 @@ configure_args="--disable-doc
  --localstatedir=/run/frr --sysconfdir=/etc/frr
  --enable-exampledir=/usr/share/examples/frr
  --enable-user=_frr --enable-group=_frr --enable-vty-group=_frrvty"
-make_build_args="SPHINXBUILD=sphinx-build3"
+make_build_args="SPHINXBUILD=sphinx-build"
 conf_files="/etc/frr/*.conf"
 make_dirs="/var/log/frr 0700 _frr _frr"
 hostmakedepends="pkg-config flex bison autoconf automake libtool
- python python3 python3-Sphinx python-devel python3-devel libyang-tools"
+ python3 python3-Sphinx python3-devel libyang-tools"
 makedepends="pcre-devel libcap-devel json-c-devel pam-devel c-ares-devel
- readline-devel python-devel python3-devel libyang-devel"
+ readline-devel python3-devel libyang-devel"
+checkdepends="python3-pytest"
 short_desc="IP routing protocol suite"
 maintainer="Cameron Nemo <cnemo@tutanota.com>"
 license="GPL-2.0-or-later, LGPL-2.1-or-later"
 homepage="https://frrouting.org"
 distfiles="https://github.com/FRRouting/frr/archive/${pkgname}-${version}.tar.gz"
-checksum=40fea6ff007453e27761a0372cde51fd8279f89984dff009092eebe2a7b29be3
-nocross="http://ix.io/1rQ6"
+checksum=54066e82a82751ec5876d9b67aa0cb24fe94e19e7371af290ac25099eda9f136
+python_version=3
 system_groups="_frrvty"
 system_accounts="_frr"
 _frr_groups="_frrvty"
@@ -33,13 +34,30 @@ if [ "$XBPS_TARGET_LIBC" = "musl" ]; then
 	makedepends+=" musl-legacy-compat"
 fi
 
+subpackages="libfrrospfapiclient libfrrospfapiclient-devel libfrr libfrr-devel frr-flush frr-reload"
+if [ "$CROSS_BUILD" ]; then
+	hostmakedepends+=" frr-devel"
+	configure_args+=" --with-clippy=/usr/libexec/frr-devel/clippy"
+else
+	subpackages+=" frr-devel"
+fi
+
+post_patch() {
+	# Typo in configure macro
+	vsed -i m4/ax_python.m4 -e 's/"{py_ver}"/"${py_ver}"/g'
+}
+
 pre_configure() {
 	autoreconf -fi
 }
 
 post_install() {
+	if [ -z "$CROSS_BUILD" ]; then
+		# install build tool to be used by cross builds
+		vinstall lib/clippy 0755 usr/libexec/frr-devel
+	fi
 	# LSB init script and friends are not needed
-	for cmd in frr watchfrr watchfrr.sh frrcommon.sh frrinit.sh; do
+	for cmd in frr watchfrr watchfrr.sh frrcommon.sh frrinit.sh generate_support_bundle.py; do
 		rm -f -- "${DESTDIR}/usr/bin/${cmd}"
 	done
 
@@ -47,7 +65,7 @@ post_install() {
 	rm -f -- "${DESTDIR}/usr/bin/frr-reload"
 	mv "${DESTDIR}/usr/bin/frr-reload.py" "${DESTDIR}/usr/bin/frr-reload"
 
-	vbin "${FILESDIR}"/frr-flush
+	vbin "${FILESDIR}/frr-flush"
 	vsv frr-generic
 	vmkdir etc/frr 0755
 	vinstall /dev/null 0640 etc/frr vtysh.conf
@@ -55,6 +73,13 @@ post_install() {
 		vinstall /dev/null 0640 etc/frr "${daemon}.conf"
 		vsv "${daemon}"
 	done
+}
+
+frr-devel_package() {
+	short_desc+=" (development binaries)"
+	pkg_install() {
+		vmove usr/libexec/frr-devel
+	}
 }
 
 frr-flush_package() {
@@ -67,7 +92,7 @@ frr-flush_package() {
 
 frr-reload_package() {
 	short_desc+=" - reload tool"
-	depends="python3-ipaddr python3 ${sourcepkg}-${version}_${revision}"
+	depends="python3 ${sourcepkg}-${version}_${revision}"
 	pkg_install() {
 		vmove usr/bin/frr-reload
 	}
@@ -77,6 +102,7 @@ libfrr_package() {
 	short_desc+=" - client library"
 	pkg_install() {
 		vmove "usr/lib/libfrr.so.*"
+		vmove "usr/lib/libfrrcares.so.*"
 	}
 }
 
@@ -89,6 +115,8 @@ libfrr-devel_package() {
 		vmove usr/include/frr/eigrpd
 		vmove usr/lib/libfrr.so
 		vmove usr/lib/libfrr.a
+		vmove usr/lib/libfrrcares.so
+		vmove usr/lib/libfrrcares.a
 	}
 }
 

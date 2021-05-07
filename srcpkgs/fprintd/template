@@ -1,23 +1,21 @@
 # Template file for 'fprintd'
 pkgname=fprintd
-version=0.8.1
+version=1.90.9
 revision=1
-_release_hash=bdd9f91909f535368b7c21f72311704a
-build_style=gnu-configure
-configure_args="--sysconfdir=/etc/${pkgname} --disable-static
- --without-systemdsystemunitdir"
+wrksrc=fprintd-v$version
+build_style=meson
+configure_args="--sysconfdir=/etc/fprintd -Dman=true -Dgtk_doc=false
+ -Dsystemd=false -Dpam_modules_dir=/usr/lib/security"
 conf_files="/etc/fprintd/fprintd.conf"
-hostmakedepends="intltool pkg-config"
-makedepends="libfprint-devel dbus-devel dbus-glib-devel polkit-devel pam-devel"
+hostmakedepends="meson dbus-glib-devel gettext-devel glib-devel intltool
+ pkg-config perl python3-cairo python3-pypamtest python3-dbus
+ python3-dbusmock libxslt libfprint polkit"
+makedepends="dbus-devel dbus-glib-devel gettext-devel glib-devel pam-devel
+ libfprint-devel polkit-devel cairo-devel elogind-devel pam_wrapper"
 short_desc="Daemon that provides fingerprint scanning functionality"
 maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://www.freedesktop.org/wiki/Software/fprint/"
-distfiles="https://gitlab.freedesktop.org/libfprint/fprintd/uploads/${_release_hash}/fprintd-${version}.tar.xz"
-checksum=34e91fdd0e41d1b57d4417c1ab3c43987dc09012772b8bab7ef46dafd3039a88
+distfiles="https://gitlab.freedesktop.org/libfprint/fprintd/-/archive/v$version/fprintd-v$version.tar.bz2"
+checksum=9c9dcef205be0dfc669e2c892b28224dcd517674214aba745697e7341e3aef6f
 lib32disabled=yes
-patch_args="-Np1"
-
-post_install() {
-	mv $DESTDIR/etc/$pkgname/dbus-1 $DESTDIR/usr/share/dbus-1
-}

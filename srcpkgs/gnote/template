@@ -1,7 +1,7 @@
 # Template file for 'gnote'
 pkgname=gnote
-version=3.32.1
-revision=2
+version=40.0
+revision=1
 build_style=gnu-configure
 configure_args="--disable-schemas-compile --disable-static"
 hostmakedepends="pkg-config intltool itstool desktop-file-utils"
@@ -13,5 +13,5 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-3.0-or-later"
 homepage="https://wiki.gnome.org/Apps/Gnote"
 distfiles="${GNOME_SITE}/gnote/${version%.*}/gnote-${version}.tar.xz"
-checksum=b8c35188ab45409e3dbb153ac27ecb1029a344dcefff49d3cac4d9fa4c243366
+checksum=e224caf8bb433dec9a2258ea2f8739afabde577210e7fb17596614569f7d0b3b
 lib32disabled=yes

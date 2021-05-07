@@ -1,7 +1,7 @@
 # Template file for 'wildmidi'
 pkgname=wildmidi
-version=0.4.3
-revision=4
+version=0.4.4
+revision=1
 wrksrc="${pkgname}-${pkgname}-${version}"
 build_style=cmake
 configure_args="-DWANT_ALSA=1 -DWANT_OSS=1 -DWANT_OPENAL=1"
@@ -9,16 +9,14 @@ hostmakedepends="pkg-config"
 makedepends="alsa-lib-devel libopenal-devel"
 depends="libwildmidi"
 short_desc="Simple software midi player and core softsynth library"
-maintainer="Jürgen Buchmüller <pullmoll@t-online.de>"
+maintainer="Érico Nogueira <ericonr@disroot.org>"
 license="GPL-3.0-or-later, LGPL-3.0-only"
-homepage="http://www.mindwerks.net/projects/wildmidi"
+homepage="https://www.mindwerks.net/projects/wildmidi"
 distfiles="https://github.com/Mindwerks/${pkgname}/archive/${pkgname}-${version}.tar.gz"
-checksum=498e5a96455bb4b91b37188ad6dcb070824e92c44f5ed452b90adbaec8eef3c5
-replaces="WildMidi>=0 WildMidi-devel>=0"
+checksum=6f267c8d331e9859906837e2c197093fddec31829d2ebf7b958cf6b7ae935430
 
 post_install() {
-	vsed -i cfg/wildmidi.cfg -e "s;/usr/share/midi/freepats;/usr/share/freepats;"
-	vsconf cfg/wildmidi.cfg
+	vsconf ${FILESDIR}/wildmidi.cfg
 }
 
 libwildmidi_package() {
@@ -27,7 +25,7 @@ libwildmidi_package() {
 	conf_files="/etc/wildmidi/wildmidi.cfg"
 	pkg_install() {
 		vmove "usr/lib/*.so.*"
-		vinstall cfg/wildmidi.cfg 644 etc/wildmidi
+		vinstall ${FILESDIR}/wildmidi.cfg 644 etc/wildmidi
 	}
 }
 
@@ -40,4 +38,16 @@ libwildmidi-devel_package() {
 		vmove usr/lib/pkgconfig
 		vmove usr/share/man/man3
 	}
+}
+
+WildMidi_package() {
+	build_style=meta
+	short_desc+=" - dummy transitional package"
+	depends="wildmidi"
+}
+
+WildMidi-devel_package() {
+	build_style=meta
+	short_desc+=" - dummy transitional package"
+	depends="libwildmidi-devel"
 }

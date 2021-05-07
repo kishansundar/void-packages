@@ -1,6 +1,6 @@
 # Template file for 'kaccounts-integration'
 pkgname=kaccounts-integration
-version=19.12.3
+version=21.04.0
 revision=1
 build_style=cmake
 hostmakedepends="extra-cmake-modules pkg-config qt5-host-tools qt5-qmake
@@ -12,7 +12,7 @@ maintainer="Piotr Wójcik <chocimier@tlen.pl>"
 license="GPL-2.0-or-later"
 homepage="https://cgit.kde.org/kaccounts-integration.git/"
 distfiles="${KDE_SITE}/release-service/${version}/src/kaccounts-integration-${version}.tar.xz"
-checksum=452b95113de5fb0d19a13ef75e229ee07b0e92cc1e7a17e9a2dc7879121d9d33
+checksum=fe3e3096a237ba0f97cd8a25926648aef30fdc8dd475d78748857032a9f6cefe
 
 kaccounts-integration-devel_package() {
 	short_desc+=" - development"

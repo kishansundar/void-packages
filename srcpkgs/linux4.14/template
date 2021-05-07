@@ -1,15 +1,19 @@
 # Template file for 'linux4.14'
 pkgname=linux4.14
-version=4.14.172
+version=4.14.225
 revision=1
-patch_args="-Np1"
-wrksrc="linux-${version}"
-maintainer="Orphaned <orphan@voidlinux.org>"
-homepage="http://www.kernel.org"
-license="GPL-2.0-only"
+wrksrc="linux-${version%.*}"
 short_desc="Linux kernel and modules (${version%.*} series)"
-distfiles="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${version}.tar.xz"
-checksum=2318a1ab937580a079351ed20557c336a3d95b664f667b14e3ba49e3271b217a
+maintainer="Orphaned <orphan@voidlinux.org>"
+license="GPL-2.0-only"
+homepage="http://www.kernel.org"
+distfiles="https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-${version%.*}.tar.xz
+ https://cdn.kernel.org/pub/linux/kernel/v4.x/patch-${version}.xz"
+checksum="f81d59477e90a130857ce18dc02f4fbe5725854911db1e7ba770c7cd350f96a7
+ b9afed9ae1f63b67fa01d17b3146f23a2ab5ef8ce458f3aec4d0b174553d0c52"
+skip_extraction="patch-${version}.xz"
+python_version=2 #unverified
+patch_args="-Np1"
 
 nodebug=yes  # -dbg package is generated below manually
 nostrip=yes
@@ -17,8 +21,9 @@ noverifyrdeps=yes
 noshlibprovides=yes
 preserve=yes
 
-archs="i686* x86_64* armv5tel* armv7l* aarch64* ppc*"
-hostmakedepends="bc elfutils-devel kmod libressl-devel perl uboot-mkimage gmp-devel libmpc-devel"
+archs="i686* x86_64* armv5tel* aarch64* ppc*"
+hostmakedepends="bc elfutils-devel kmod openssl-devel perl uboot-mkimage
+ gmp-devel libmpc-devel xz"
 
 case "$XBPS_TARGET_MACHINE" in
 	ppc64le*) broken="No ppc64le support";;
@@ -31,6 +36,7 @@ kernel_hooks_version="${_kernver}"
 # These files could be modified when an external module is built.
 mutable_files="
  /usr/lib/modules/${_kernver}/modules.builtin.bin
+ /usr/lib/modules/${_kernver}/modules.builtin.alias.bin
  /usr/lib/modules/${_kernver}/modules.softdep
  /usr/lib/modules/${_kernver}/modules.dep
  /usr/lib/modules/${_kernver}/modules.dep.bin
@@ -39,6 +45,15 @@ mutable_files="
  /usr/lib/modules/${_kernver}/modules.alias
  /usr/lib/modules/${_kernver}/modules.alias.bin
  /usr/lib/modules/${_kernver}/modules.devname"
+
+# reproducible build
+export KBUILD_BUILD_TIMESTAMP=${SOURCE_DATE_EPOCH:-0}
+export KBUILD_BUILD_USER=voidlinux
+export KBUILD_BUILD_HOST=voidlinux
+
+pre_patch() {
+	xzcat $XBPS_SRCDISTDIR/$pkgname-$version/patch-${version}.xz | patch -Np1
+}
 
 do_configure() {
 	# 4.14rc1 misses Documentation/DocBook. We ship the directory from 4.12 here.
@@ -305,5 +320,6 @@ linux4.14-dbg_package() {
 	short_desc+=" - debugging symbols"
 	pkg_install() {
 		vmove usr/lib/debug
+		vmove "boot/System.map-${_kernver}"
 	}
 }

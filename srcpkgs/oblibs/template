@@ -1,6 +1,6 @@
 # Template file for 'oblibs'
 pkgname=oblibs
-version=0.0.5.1
+version=0.1.3.0
 revision=1
 wrksrc="${pkgname}-v${version}"
 build_style=configure
@@ -11,10 +11,10 @@ maintainer="mobinmob <mobinmob@disroot.org>"
 license="ISC"
 homepage="https://framagit.org/Obarun/oblibs"
 distfiles="${homepage}/-/archive/v${version}/${pkgname}-v${version}.tar.bz2"
-checksum=5a1f000c66b3b065a9a3fcdaaf0a5e53778a2db39c0a5d1f821a1c3a727c9b50
+checksum=40f8ef6ba08cecd467e03a137dad14eba649789049bde10f08b0706a657e970d
 
 post_install() {
-	vlicense COPYING
+	vlicense LICENSE
 }
 
 oblibs-devel_package() {

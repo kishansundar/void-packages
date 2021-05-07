@@ -1,9 +1,9 @@
 # Template file for 'kitty'
 pkgname=kitty
-version=0.16.0
+version=0.20.1
 revision=1
 pycompile_dirs="usr/lib/kitty"
-hostmakedepends="ncurses pkg-config python3 wayland-devel wayland-protocols"
+hostmakedepends="pkg-config python3 wayland-devel wayland-protocols"
 makedepends="gettext-devel glfw-devel harfbuzz-devel libxkbcommon-devel
  python3-devel wayland-devel wayland-protocols libcanberra-devel"
 depends="kitty-terminfo-${version}_${revision}"
@@ -13,9 +13,9 @@ license="GPL-3.0-or-later"
 homepage="https://sw.kovidgoyal.net/kitty/"
 changelog="https://sw.kovidgoyal.net/kitty/changelog.html"
 distfiles="https://github.com/kovidgoyal/kitty/releases/download/v${version}/kitty-${version}.tar.xz"
-checksum=a78e9e1f2a37c734df1bf9c7f986212624fb50ddd2f589c85868bb9152fc7881
+checksum=43596a1c5645fe476e96e748bb3b44afd680d84b4af409cd36b33de19b31933d
 patch_args="-Np1"
-pycompile_version="$py3_ver"
+python_version=3
 LDFLAGS+=" -Wl,-z,stack-size=2097152"
 
 # TIOCSWINSZ on ppc overflows signed int, used in ioctl()
@@ -41,7 +41,6 @@ do_install() {
 
 kitty-terminfo_package() {
 	short_desc+=" - terminfo data"
-	archs=noarch
 	pkg_install() {
 		vmove usr/share/terminfo
 	}

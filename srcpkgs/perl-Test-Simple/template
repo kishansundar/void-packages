@@ -1,8 +1,7 @@
 # Template file for 'perl-Test-Simple'
 pkgname=perl-Test-Simple
-version=1.302172
+version=1.302183
 revision=1
-archs=noarch
 wrksrc="${pkgname/perl-/}-${version}"
 build_style=perl-module
 hostmakedepends="perl"
@@ -13,4 +12,4 @@ maintainer="Zach Dykstra <dykstra.zachary@gmail.com>"
 license="Artistic-1.0-Perl, GPL-1.0-or-later"
 homepage="https://metacpan.org/release/Test-Simple"
 distfiles="${CPAN_SITE}/Test/${pkgname/perl-/}-${version}.tar.gz"
-checksum=7388768f04128294a0e24c553eefbd2a464464617a8c19dfc21538ad5f4334fc
+checksum=9a03bda5ec420aea9692b650437f4d5b574fa505fdd7ff60cdb5f3ec034106ff

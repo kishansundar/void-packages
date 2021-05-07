@@ -1,1 +1,0 @@
-pattern="/intel/tbb/archive/\K[0-9_U]+(?=\.tar\.gz)"

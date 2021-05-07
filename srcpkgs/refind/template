@@ -1,31 +1,35 @@
 # Template file for 'refind'
 pkgname=refind
-version=0.11.4
-revision=4
-makedepends="gnu-efi-libs git"
+version=0.13.2
+revision=1
+archs="x86_64* i686* aarch64*"
+makedepends="gnu-efi-libs"
 depends="bash dosfstools efibootmgr"
 short_desc="EFI boot manager utility"
-maintainer="Julio Galvan <juliogalvan@protonmail.com>"
-license="GPL-3.0-only, BSD-3-Clause"
+maintainer="Đoàn Trần Công Danh <congdanhqx@gmail.com>"
+license="GPL-3.0-only, BSD-3-Clause, BSD-2-Clause, GPL-2.0-only, LGPL-2.1-only"
 homepage="https://sourceforge.net/projects/refind/"
 distfiles="${SOURCEFORGE_SITE}/refind/refind-src-${version}.tar.gz"
-checksum=39baf140603951da098238c1cbf4176fdd7d4a45fab0399e9985ad7368034dae
+checksum=dd58944854a42df5a2a943f15e5dcfd995808f28580df96ad39d68fb1e48c970
+python_version=2
 conf_files="/etc/default/refind-kernel-hook.conf"
 
-case "$XBPS_TARGET_MACHINE" in
-	x86_64*|i686*|aarch64*) ;;
-	*) broken="${XBPS_TARGET_MACHINE} is unsupported" ;;
-esac
-
 post_extract() {
-	sed 's|RefindDir=\"\$ThisDir/refind\"|RefindDir="/usr/share/refind"|g' -i refind-install
+	vsed -e 's|RefindDir=\"\$ThisDir/refind\"|RefindDir="/usr/share/refind"|g' \
+		-i refind-install
 
 	# Patch paths to libaries and includes for cross-compiling
-	sed -e "s|^EFIINC.*|EFIINC = ${XBPS_CROSS_BASE}/usr/include/efi|" \
+	vsed \
+		-e "s|^EFIINC.*|EFIINC = ${XBPS_CROSS_BASE}/usr/include/efi|" \
 		-e "s|^GNUEFILIB.*|GNUEFILIB = ${XBPS_CROSS_BASE}/usr/lib|" \
 		-e "s|^EFILIB.*|EFILIB = ${XBPS_CROSS_BASE}/usr/lib|" \
 		-e "s|^EFICRT0.*|EFICRT0 = ${XBPS_CROSS_BASE}/usr/lib|" \
 		-i Make.common
+
+	# Only this file is written in python3
+	# All other files are python2
+	vsed -e '1s,^.*python3$,#!/usr/bin/python3,' \
+			-i refind-mkdefault
 }
 
 do_build() {

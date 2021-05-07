@@ -1,29 +1,34 @@
 # Template file for 'calibre'
 pkgname=calibre
-version=4.12.0
+version=5.17.0
 revision=1
-build_style=python2-module
+build_style=python3-module
 pycompile_dirs="/usr/lib/calibre/"
-hostmakedepends="pkg-config python-BeautifulSoup4 python-Pillow python-PyQt5-svg
- python-PyQt5-webengine python-apsw python-css-parser python-dateutil
- python-devel python-html5-parser python-msgpack python-regex qt5-qmake
- xdg-utils rapydscript-ng"
-makedepends="glib-devel libchmlib-devel libinput-devel libmagick-devel libmtp-devel
- libpodofo-devel libwmf-devel libxkbcommon-devel python-PyQt5-devel
+hostmakedepends="pkg-config python3-BeautifulSoup4 python3-Pillow python3-PyQt5-svg
+ python3-PyQt5-webengine python3-apsw python3-css-parser python3-dateutil
+ python3-devel python3-html5-parser python3-msgpack python3-regex qt5-qmake
+ libpodofo-devel python3-PyQt-builder python3-PyQt5-devel qt5-host-tools
+ python3-zeroconf xdg-utils rapydscript-ng"
+makedepends="libinput-devel libmagick-devel libmtp-devel
+ libpodofo-devel libwmf-devel libxkbcommon-devel python3-PyQt5-devel
  qt5-devel sqlite-devel tslib-devel hunspell-devel hyphen-devel"
-depends="desktop-file-utils optipng poppler-utils python-BeautifulSoup4
- python-Markdown python-Pillow python-PyQt5-svg
- python-PyQt5-webengine python-PyQt5-webchannel python-Pygments python-apsw
- python-css-parser python-cssselect python-dateutil python-dbus
- python-dnspython python-feedparser python-html5-parser python-mechanize
- python-msgpack python-netifaces python-psutil python-regex qt5-webengine"
+depends="desktop-file-utils optipng poppler-utils python3-BeautifulSoup4
+ python3-Markdown python3-Pillow python3-PyQt5-svg python3-zeroconf
+ python3-PyQt5-webengine python3-PyQt5-webchannel python3-Pygments python3-apsw
+ python3-css-parser python3-cssselect python3-dateutil python3-dbus
+ python3-dnspython python3-feedparser python3-html5-parser python3-mechanize
+ python3-msgpack python3-netifaces python3-psutil python3-regex python3-html2text
+ python3-pychm python3-cchardet qt5-webengine speech-dispatcher"
+# should check if python3-pycryptodome is still needed
+checkdepends="${depends} libjpeg-turbo-tools jxrlib python3-pycryptodome"
 short_desc="Ebook management application"
-maintainer="bra1nwave <bra1nwave@protonmail.com>"
+maintainer="skmpz <dem.procopiou@gmail.com>"
 license="GPL-3.0-only"
 homepage="https://calibre-ebook.com"
-changelog="https://raw.githubusercontent.com/kovidgoyal/calibre/master/Changelog.yaml"
+changelog="https://raw.githubusercontent.com/kovidgoyal/calibre/master/Changelog.txt"
 distfiles="https://download.calibre-ebook.com/${version}/calibre-${version}.tar.xz"
-checksum=d111bfd36d3be058234c4f3a4f468a05a3f60b8e3967a530e39e35056ea19b90
+checksum=add8812f7637abfd3015f5861388c69166a4815f2103d1e30dc297b28ead56bb
+lib32disabled=yes
 nocross=yes
 
 do_configure() {
@@ -38,15 +43,28 @@ do_configure() {
 }
 
 do_build() {
-	python2 setup.py build
-	python2 setup.py gui
-	python2 setup.py rapydscript
+	python3 setup.py build
+	python3 setup.py gui
+	python3 setup.py rapydscript
+}
+
+do_check() {
+	# qt test crashes without any error messages
+	# disabled for now
+	# unrar test fails because python3-unrardll isn't packaged
+	# searching test case fails (non-deterministic)
+	# 7z tests disabled (missing python-py7zr dependencies)
+	python3 setup.py test \
+		--exclude-test-name unrar \
+		--exclude-test-name qt \
+		--exclude-test-name searching \
+		--exclude-test-name 7z
 }
 
 do_install() {
 	vmkdir usr/share/zsh/site-functions
 
-	python2 setup.py \
+	python3 setup.py \
 		install --prefix=/usr --staging-root=${DESTDIR}/usr
 
 	for m in man-pages/man1/*.1; do

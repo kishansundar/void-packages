@@ -1,7 +1,7 @@
 # Template file for 'MultiMarkdown'
 pkgname=MultiMarkdown
-version=6.5.1
-revision=1
+version=6.6.0
+revision=2
 wrksrc="$pkgname-6-$version"
 build_style=cmake
 hostmakedepends="perl"
@@ -11,12 +11,13 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="MIT"
 homepage="http://fletcherpenney.net/multimarkdown/"
 distfiles="https://github.com/fletcher/MultiMarkdown-6/archive/${version}.tar.gz"
-checksum=e8710777566d7710100b44e829a15d0ec2fce20271477aebea7caac319e1b20f
+checksum=6496b43c933d2f93ff6be80f5029d37e9576a5d5eacb90900e6b28c90405037f
 
 post_install() {
 	# TODO: markdown alternatives
 	mv ${DESTDIR}/usr/bin/markdown ${DESTDIR}/usr/bin/multimarkdown-markdown
 	# Avoid conflict with mtools
 	mv ${DESTDIR}/usr/bin/mmd  ${DESTDIR}/usr/bin/multimarkdown-mmd
-	vlicense LICENSE.txt LICENSE
+	rm ${DESTDIR}/usr/{LICENSE,README}.txt
+	vlicense LICENSE
 }

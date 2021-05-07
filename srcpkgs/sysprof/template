@@ -1,6 +1,6 @@
 # Template file for 'sysprof'
 pkgname=sysprof
-version=3.34.1
+version=3.38.0
 revision=1
 build_style=meson
 configure_args="-Denable_gtk=true -Dsystemdunitdir=deleteme"
@@ -11,7 +11,7 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later, GPL-3.0-or-later"
 homepage="http://sysprof.com/"
 distfiles="${GNOME_SITE}/${pkgname}/${version%.*}/${pkgname}-${version}.tar.xz"
-checksum=844bbb8d8b65071b3bca96f8e921319ceef81f2d2c51fcc9da63a4b355c893d0
+checksum=8bcd728dc2f74e6f589410370dfb1b8801468bb3cc1803aa240735a7cff241ce
 
 # for ITS rules
 if [ "$CROSS_BUILD" ]; then

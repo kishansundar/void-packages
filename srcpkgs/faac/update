@@ -1,1 +1,1 @@
-ignore="*2001"
+pattern='/archive/refs/tags/(v?|\Q${pkgname}\E-)?\K[\d\._]+(?=\.tar\.gz")'

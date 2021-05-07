@@ -1,18 +1,18 @@
 # Template file for 'python3-Telethon'
 pkgname=python3-Telethon
-version=1.11.3
+version=1.21.1
 revision=1
-archs=noarch
 wrksrc="Telethon-${version}"
 build_style=python3-module
 hostmakedepends="python3-setuptools"
 depends="python3-pyaes python3-rsa"
+checkdepends="$depends python3-pytest python3-pytest-asyncio"
 short_desc="Pure Python3 Telegram client library"
 maintainer="Peter Bui <pbui@github.bx612.space>"
 license="MIT"
 homepage="https://github.com/LonamiWebs/Telethon"
 distfiles="https://github.com/LonamiWebs/Telethon/archive/v${version}.tar.gz"
-checksum=f399c6753789a03f24b3ecad4fb3c3c63515fe2f7fb9658a6cd7b4af14eaaa95
+checksum=793a98e775f7f4261fb7fa7a4a447f92a663e6697c7a7a5afcf3a54bfd3cf289
 
 post_install() {
 	vlicense LICENSE

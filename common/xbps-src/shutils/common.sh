@@ -30,7 +30,7 @@ run_func() {
 ch_wrksrc() {
     cd "$wrksrc" || msg_error "$pkgver: cannot access wrksrc directory [$wrksrc]\n"
     if [ -n "$build_wrksrc" ]; then
-        cd $build_wrksrc || \
+        cd "$build_wrksrc" || \
             msg_error "$pkgver: cannot access build_wrksrc directory [$build_wrksrc]\n"
     fi
 }
@@ -162,11 +162,24 @@ set_build_options() {
     fi
 
     for f in ${build_options}; do
-        _pkgname=${pkgname//[^A-Za-z0-9_]/_}
-        eval pkgopts="\$XBPS_PKG_OPTIONS_${_pkgname}"
-        if [ -z "$pkgopts" -o "$pkgopts" = "" ]; then
-            pkgopts=${XBPS_PKG_OPTIONS}
+        # Select build options from conf
+        export XBPS_CURRENT_PKG=${pkgname}
+        pkgopts="$(
+            . $XBPS_CONFIG_FILE 2>/dev/null
+            var="XBPS_PKG_OPTIONS_${XBPS_CURRENT_PKG//[^A-Za-z0-9_]/_}"
+            echo ${!var:-${XBPS_PKG_OPTIONS}}
+        )"
+        unset XBPS_CURRENT_PKG
+
+        # If pkg options were set in config(s), merge them with command line
+        if [ -n "$XBPS_ARG_PKG_OPTIONS" ]; then
+            if [ -n "$pkgopts" ]; then
+                pkgopts+=",$XBPS_ARG_PKG_OPTIONS"
+            else
+                pkgopts="$XBPS_ARG_PKG_OPTIONS"
+            fi
         fi
+
         OIFS="$IFS"; IFS=','
         for j in ${pkgopts}; do
             case "$j" in
@@ -182,7 +195,7 @@ set_build_options() {
     done
 
     # Prepare final options.
-    for f in ${!options[@]}; do
+    for f in ${build_options}; do
         if [[ ${options[$f]} -eq 1 ]]; then
             eval export build_option_${f}=1
         else
@@ -256,9 +269,8 @@ get_endian() {
         i686)     echo "le";;
         mipsel*)  echo "le";;
         mips*)    echo "be";;
-        ppc64le)  echo "le";;
-        ppc64)    echo "be";;
-        ppc)      echo "be";;
+        ppc*le)   echo "le";;
+        ppc*)     echo "be";;
         x86_64)   echo "le";;
     esac
 }
@@ -284,9 +296,8 @@ get_wordsize() {
         i686)     echo "32";;
         mipsel*)  echo "32";;
         mips*)    echo "32";;
-        ppc64le)  echo "64";;
-        ppc64)    echo "64";;
-        ppc)      echo "32";;
+        ppc64*)   echo "64";;
+        ppc*)     echo "32";;
         x86_64)   echo "64";;
     esac
 }
@@ -298,6 +309,7 @@ get_no_atomic8() {
         armv5tel) echo "yes";;
         armv6l)   echo "yes";;
         mips*)    echo "yes";;
+        ppcle)    echo "yes";;
         ppc)      echo "yes";;
     esac
 }
@@ -316,7 +328,7 @@ get_subpkgs() {
 
 setup_pkg() {
     local pkg="$1" cross="$2" show_problems="$3"
-    local basepkg val _vars f dbgflags arch extrarepo
+    local basepkg val _vars f dbgflags extrarepo
 
     [ -z "$pkg" ] && return 1
     basepkg=${pkg%-32bit}
@@ -330,7 +342,7 @@ setup_pkg() {
     if [ -n "$cross" ]; then
         source_file $XBPS_CROSSPFDIR/${cross}.sh
 
-        _vars="TARGET_MACHINE CROSS_TRIPLET CROSS_CFLAGS CROSS_CXXFLAGS TARGET_QEMU_MACHINE"
+        _vars="TARGET_MACHINE CROSS_TRIPLET CROSS_CFLAGS CROSS_CXXFLAGS CROSS_FFLAGS TARGET_QEMU_MACHINE"
         for f in ${_vars}; do
             eval val="\$XBPS_$f"
             if [ -z "$val" ]; then
@@ -457,13 +469,6 @@ setup_pkg() {
         XBPS_MAKEJOBS=1
     fi
     makejobs="-j$XBPS_MAKEJOBS"
-
-    # strip whitespaces to make "  noarch  " valid too.
-    if [ "${archs// /}" = "noarch" ]; then
-        arch="noarch"
-    else
-        arch="$XBPS_TARGET_MACHINE"
-    fi
     if [ -n "$XBPS_BINPKG_EXISTS" ]; then
         local _binpkgver="$($XBPS_QUERY_XCMD -R -ppkgver $pkgver 2>/dev/null)"
         if [ "$_binpkgver" = "$pkgver" ]; then
@@ -495,7 +500,7 @@ setup_pkg() {
 
     export CFLAGS="$XBPS_CFLAGS $XBPS_CROSS_CFLAGS $CFLAGS $dbgflags"
     export CXXFLAGS="$XBPS_CXXFLAGS $XBPS_CROSS_CXXFLAGS $CXXFLAGS $dbgflags"
-    export FFLAGS="$XBPS_FFLAGS $XBPS_CROSS_FFLAGS $FFLAGS"
+    export FFLAGS="$XBPS_FFLAGS $XBPS_CROSS_FFLAGS $FFLAGS $dbgflags"
     export CPPFLAGS="$XBPS_CPPFLAGS $XBPS_CROSS_CPPFLAGS $CPPFLAGS"
     export LDFLAGS="$XBPS_LDFLAGS $XBPS_CROSS_LDFLAGS $LDFLAGS"
 
@@ -515,6 +520,7 @@ setup_pkg() {
     export CPP_FOR_BUILD="cpp"
     export FC_FOR_BUILD="gfortran"
     export LD_FOR_BUILD="ld"
+    export PKG_CONFIG_FOR_BUILD="/usr/bin/pkg-config"
     export CFLAGS_FOR_BUILD="$XBPS_CFLAGS"
     export CXXFLAGS_FOR_BUILD="$XBPS_CXXFLAGS"
     export CPPFLAGS_FOR_BUILD="$XBPS_CPPFLAGS"
@@ -537,6 +543,7 @@ setup_pkg() {
         export OBJCOPY="${XBPS_CROSS_TRIPLET}-objcopy"
         export NM="${XBPS_CROSS_TRIPLET}-nm"
         export READELF="${XBPS_CROSS_TRIPLET}-readelf"
+        export PKG_CONFIG="${XBPS_CROSS_TRIPLET}-pkg-config"
         # Target tools
         export CC_target="$CC"
         export CXX_target="$CXX"
@@ -557,6 +564,7 @@ setup_pkg() {
         export CXXFLAGS_target="$CXXFLAGS"
         export CPPFLAGS_target="$CPPFLAGS"
         export LDFLAGS_target="$LDFLAGS"
+	export FFLAGS_target="$FFLAGS"
         # Host tools
         export CC_host="cc"
         export CXX_host="g++"
@@ -577,6 +585,7 @@ setup_pkg() {
         export CXXFLAGS_host="$XBPS_CXXFLAGS"
         export CPPFLAGS_host="$XBPS_CPPFLAGS"
         export LDFLAGS_host="$XBPS_LDFLAGS"
+	export FFLAGS_host="$XBPS_FFLAGS"
         # Rust flags which are passed to rustc
         export RUSTFLAGS="$XBPS_CROSS_RUSTFLAGS"
         # Rust target, which differs from our triplets
@@ -605,15 +614,16 @@ setup_pkg() {
         export OBJCOPY="objcopy"
         export NM="nm"
         export READELF="readelf"
+        export PKG_CONFIG="pkg-config"
         export RUST_TARGET="$XBPS_RUST_TARGET"
         export RUST_BUILD="$XBPS_RUST_TARGET"
         # Unset cross evironment variables
         unset CC_target CXX_target CPP_target GCC_target FC_target LD_target AR_target AS_target
         unset RANLIB_target STRIP_target OBJDUMP_target OBJCOPY_target NM_target READELF_target
-        unset CFLAGS_target CXXFLAGS_target CPPFLAGS_target LDFLAGS_target
+        unset CFLAGS_target CXXFLAGS_target CPPFLAGS_target LDFLAGS_target FFLAGS_target
         unset CC_host CXX_host CPP_host GCC_host FC_host LD_host AR_host AS_host
         unset RANLIB_host STRIP_host OBJDUMP_host OBJCOPY_host NM_host READELF_host
-        unset CFLAGS_host CXXFLAGS_host CPPFLAGS_host LDFLAGS_host
+        unset CFLAGS_host CXXFLAGS_host CPPFLAGS_host LDFLAGS_host FFLAGS_host
         unset RUSTFLAGS
     fi
 

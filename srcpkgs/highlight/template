@@ -1,17 +1,16 @@
 # Template file for 'highlight'
 pkgname=highlight
-version=3.55
+version=3.58
 revision=1
 build_style=gnu-makefile
-make_cmd="make QMAKE=qmake"
-hostmakedepends="pkg-config qt-qmake swig perl"
-makedepends="boost-devel lua-devel perl"
+hostmakedepends="pkg-config swig perl"
+makedepends="boost-devel lua54-devel perl"
 short_desc="Fast and flexible source code highlighter (CLI version)"
 maintainer="Steve Prybylski <sa.prybylx@gmail.com>"
 license="GPL-3.0-or-later"
 homepage="http://www.andre-simon.de/doku/highlight/en/highlight.php"
 distfiles="http://www.andre-simon.de/zip/${pkgname}-${version}.tar.bz2"
-checksum=1df2dcf909af03291b3696ddc66219ef22559d4a1db0fd26400e2fa2a795bcfc
+checksum=df80251be1f83adfc58aaad589fd9a8f9a3866b0d89b9f3c81b1696f07db45f8
 conf_files="/etc/highlight/filetypes.conf"
 
 post_extract() {
@@ -31,7 +30,7 @@ pre_build() {
 }
 
 do_check() {
-	# No check target, fails spetarcularly when asked
+	# No check target, fails spectacularly when asked
 	:
 }
 

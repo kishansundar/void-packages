@@ -1,7 +1,7 @@
 # Template file for 'tig'
 pkgname=tig
-version=2.5.0
-revision=2
+version=2.5.3
+revision=1
 wrksrc="${pkgname}-${pkgname}-${version}"
 build_style=gnu-configure
 make_install_args="install-doc-man"
@@ -14,7 +14,7 @@ maintainer="Lugubris <lugubris@disroot.org>"
 license="GPL-2.0-only"
 homepage="https://jonas.github.io/tig/"
 distfiles="https://github.com/jonas/tig/archive/tig-${version}.tar.gz"
-checksum=a58791274780e9106c37822b098aa52c93c53d8a66d97b3c3e6044bf9811c89a
+checksum=c2d6219c18ea33a92ac0691bdd528fcabea8529036858ef2b17726b838614343
 
 pre_configure() {
 	NOCONFIGURE=1 ./autogen.sh

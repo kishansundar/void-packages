@@ -1,17 +1,17 @@
 # Template file for 'NetAuth-nsscache'
 pkgname=NetAuth-nsscache
-version=0.6.2
+version=0.6.5
 revision=1
 wrksrc="nsscache-$version"
 build_style=go
 go_import_path="github.com/netauth/nsscache"
 hostmakedepends="git"
 short_desc="NetAuth nsscache implementation"
-maintainer="Michael Aldridge <maldridge@voidlinux.org>"
+maintainer="Michael Aldridge <maldridge@netauth.org>"
 license="MIT"
 homepage="https://netauth.org"
 distfiles="https://github.com/NetAuth/nsscache/archive/v$version.tar.gz"
-checksum=0609db33c24e594fb84821eba76959622e9ac4752c66b6be8c1e4fdcd8158a6e
+checksum=d5e558d552009d59e5b433a9b96dac7db378412ccebb9dee95216a7a58eab2aa
 
 post_install() {
 	vlicense LICENSE

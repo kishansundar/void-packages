@@ -1,24 +1,27 @@
 # Template file for 'ldc'
 pkgname=ldc
-version=1.13.0
-revision=3
+version=1.24.0
+revision=2
 wrksrc="ldc-${version}-src"
 build_style=cmake
-configure_args="-DINCLUDE_INSTALL_DIR=/usr/include/dlang/ldc -DBUILD_SHARED_LIBS=ON
+configure_args="
+ -DINCLUDE_INSTALL_DIR=/usr/include/dlang/ldc
+ -DBUILD_SHARED_LIBS=ON
+ -DCMAKE_BUILD_TYPE=RelWithDebInfo
  -DBASH_COMPLETION_COMPLETIONSDIR=/usr/share/bash-completion"
 conf_files="/etc/ldc2.conf"
-hostmakedepends="dmd llvm7 perl pkg-config"
+hostmakedepends="dmd llvm11 perl pkg-config"
 makedepends="libcurl-devel libffi-devel ncurses-devel zlib-devel"
 depends="ldc-runtime"
 short_desc="Portable D programming language compiler based on LLVM"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="Auri <me@aurieh.me>"
 license="BSD-3-Clause, BSL-1.0"
 homepage="https://wiki.dlang.org/LDC"
 changelog="https://raw.githubusercontent.com/ldc-developers/ldc/master/CHANGELOG.md"
 distfiles="https://github.com/ldc-developers/ldc/releases/download/v${version}/ldc-${version}-src.tar.gz"
-checksum=4b2fd3eb90fb6debc0ae6d70406bc78fcb531a0f20806640e626d4822e87b2e0
+checksum=fd9561ade916e9279bdcc166cf0e4836449c24e695ab4470297882588adbba3c
 nopie=yes
-nocross=yes
+nocross="dmd compilation fails on cross"
 
 post_install() {
 	vlicense LICENSE

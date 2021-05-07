@@ -1,17 +1,22 @@
 # Template file for 'spotify-tui'
 pkgname=spotify-tui
-version=0.17.0
+version=0.24.0
 revision=1
 build_style=cargo
 hostmakedepends="pkg-config python3"
-makedepends="libressl-devel python3-devel libxcb-devel"
+makedepends="openssl-devel python3-devel libxcb-devel"
 short_desc="Spotify for the terminal"
 maintainer="Andrew Benson <abenson+void@gmail.com>"
 license="MIT"
 homepage="https://github.com/Rigellute/spotify-tui"
 distfiles="https://github.com/Rigellute/spotify-tui/archive/v${version}.tar.gz"
-checksum=5e8c5d0581d01a0bd1bbed1e97a2603adc600e9f3f932f939e371fcbb2a2031e
+checksum=c3da9eec76fe5387555b63ff7e4de8e0e4f5eba948af6df112e02cf8031519ee
+
+pre_build() {
+	cargo update --package openssl-sys --precise 0.9.58
+}
 
 post_install() {
+	mv ${DESTDIR}/usr/bin/spt ${DESTDIR}/usr/bin/spotify-tui
 	vlicense LICENSE
 }

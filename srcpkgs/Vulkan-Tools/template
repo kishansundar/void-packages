@@ -1,11 +1,11 @@
 # Template file for 'Vulkan-Tools'
 pkgname=Vulkan-Tools
-version=1.2.135
+version=1.2.162
 revision=1
 wrksrc="${pkgname}-${version}"
 build_style=cmake
 configure_args="-DGLSLANG_INSTALL_DIR=/usr -DBUILD_CUBE=$(vopt_if cube ON OFF)
- -DVULKAN_HEADERS_INSTALL_DIR=${XBPS_CROSS_BASE}/usr"
+ -DVULKAN_HEADERS_INSTALL_DIR=${XBPS_CROSS_BASE}/usr -Wno-dev"
 hostmakedepends="python3 pkg-config $(vopt_if cube glslang)"
 makedepends="Vulkan-Headers vulkan-loader libxcb-devel libxkbcommon-devel
  wayland-devel libXrandr-devel"
@@ -14,7 +14,7 @@ maintainer="Arvin Ignaci <arvin.ignaci@gmail.com>"
 license="Apache-2.0"
 homepage="https://www.khronos.org/vulkan/"
 distfiles="https://github.com/KhronosGroup/${pkgname}/archive/v${version}.tar.gz"
-checksum=6b497194fb2e06e41a9ab8c404ea3c82cca1fc1e0c540ffcd2905b9bebef5e84
+checksum=98a3a00471da65df833b4ffeb1ab29ec1d169d5feab54270cf4cd8f50f82e682
 
 build_options="cube"
 desc_option_cube="Build cube vulkan demo"

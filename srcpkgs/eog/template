@@ -1,20 +1,20 @@
 # Template file for 'eog'
 pkgname=eog
-version=3.36.0
+version=40.0
 revision=1
 build_helper="gir"
 build_style=meson
 configure_args="-Dintrospection=$(vopt_if gir true false)"
 hostmakedepends="gettext glib-devel itstool pkg-config"
 makedepends="exempi-devel gnome-desktop-devel libexif-devel libpeas-devel
- librsvg-devel"
+ librsvg-devel lcms2-devel libportal-devel"
 depends="desktop-file-utils hicolor-icon-theme shared-mime-info"
 short_desc="Eye of GNOME graphics viewer program"
 maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Apps/EyeOfGnome"
 distfiles="${GNOME_SITE}/eog/${version%.*}/eog-${version}.tar.xz"
-checksum=400308c517a4a3725ab0c7453f5b146b7a22a726eab5538a8c6c373aaebcce3e
+checksum=3017c984f115977c22bc4f9d27d09f80ec96adf6901b4ec0f4f542ef023de5f9
 shlib_provides="libeog.so"
 lib32disabled=yes
 

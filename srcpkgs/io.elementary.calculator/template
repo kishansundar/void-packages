@@ -1,17 +1,17 @@
 # Template file for 'io.elementary.calculator'
 pkgname=io.elementary.calculator
-version=1.5.4
-revision=1
+version=1.6.0
+revision=2
 wrksrc="calculator-${version}"
 build_style=meson
 hostmakedepends="intltool pkg-config vala desktop-file-utils AppStream"
 makedepends="granite-devel gtk+3-devel"
 short_desc="Calculator app designed for elementary OS"
-maintainer="Cameron Nemo <camerontnorman@gmail.com>"
+maintainer="Cameron Nemo <cnemo@tutanota.com>"
 license="GPL-3.0-only"
 homepage="https://github.com/elementary/calculator"
 distfiles="${homepage}/archive/${version}.tar.gz"
-checksum=3855e0083332ff625d5ae573b85075bdee9b5f82ce9b017fd5cb74aa57993191
+checksum=c650d5ff7d2df2d122ade0cbd35be50927f22b0d260f28e374b1112114f24540
 
 pantheon-calculator_package() {
 	depends="io.elementary.calculator>=${version}_${revision}"

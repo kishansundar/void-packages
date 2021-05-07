@@ -1,11 +1,11 @@
 # Template file for 'graphene'
 pkgname=graphene
-version=1.8.2
-revision=2
+version=1.10.6
+revision=1
 build_style=meson
 build_helper="gir"
-configure_args="-Dtests=false -Dbenchmarks=false
- -Dintrospection=$(vopt_if gir true false)"
+configure_args="-Dbenchmarks=false -Dinstalled_tests=false
+ -Dintrospection=$(vopt_if gir enabled disabled) -Dsse2=true"
 hostmakedepends="pkg-config"
 makedepends="libglib-devel"
 short_desc="Thin layer of types for graphic libraries"
@@ -13,13 +13,17 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="MIT"
 homepage="https://github.com/ebassi/graphene"
 distfiles="${GNOME_SITE}/graphene/${version%.*}/graphene-${version}.tar.xz"
-checksum=b3fcf20996e57b1f4df3941caac10f143bb29890a42f7a65407cd19271fc89f7
+checksum=80ae57723e4608e6875626a88aaa6f56dd25df75024bd16e9d77e718c3560b25
+
+case "$XBPS_TARGET_MACHINE" in
+	arm*) configure_args+=" -Darm_neon=false" ;;
+esac
 
 build_options="gir"
 build_options_default="gir"
 
 post_install() {
-	vlicense LICENSE
+	vlicense LICENSE.txt LICENSE
 }
 
 graphene-devel_package() {

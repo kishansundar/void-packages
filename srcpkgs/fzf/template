@@ -1,9 +1,9 @@
 # Template file for 'fzf'
 pkgname=fzf
-version=0.21.0
+version=0.27.0
 revision=1
 build_style=go
-go_import_path=github.com/junegunn/fzf
+go_import_path="github.com/junegunn/fzf"
 hostmakedepends="git"
 makedepends="ncurses-devel"
 short_desc="Command-line fuzzy finder"
@@ -12,7 +12,7 @@ license="MIT"
 homepage="https://github.com/junegunn/fzf"
 changelog="https://raw.githubusercontent.com/junegunn/fzf/master/CHANGELOG.md"
 distfiles="https://github.com/junegunn/fzf/archive/${version}.tar.gz"
-checksum=89870f9f9396f41adc3609d466caab7556d831a1ad726cc6132a880febfd0eec
+checksum=265c569f3b0c3c210b45831b80d4fba260c5956f3ebf88d2c5c8f9f6d759e388
 
 post_install() {
 	cd ${wrksrc}
@@ -22,7 +22,8 @@ post_install() {
 
 	sed -i -e 's#source ~/\.fzf\.bash; ##' shell/key-bindings.bash
 	vinstall plugin/fzf.vim 644 usr/share/vim/vimfiles/plugin
-	vinstall shell/completion.bash 644 usr/share/bash-completion/completions fzf
+	vinstall plugin/fzf.vim 644 usr/share/nvim/runtime/plugin
+	vinstall shell/completion.bash 644 usr/share/doc/fzf
 	vinstall shell/completion.zsh 644 usr/share/doc/fzf
 	vinstall shell/key-bindings.zsh 644 usr/share/doc/fzf
 	vinstall shell/key-bindings.bash 644 usr/share/doc/fzf

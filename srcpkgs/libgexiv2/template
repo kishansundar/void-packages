@@ -1,7 +1,7 @@
 # Template file for 'libgexiv2'
 pkgname=libgexiv2
-version=0.12.0
-revision=2
+version=0.12.2
+revision=1
 wrksrc="${pkgname/lib/}-${version}"
 build_style=meson
 build_helper="gir"
@@ -14,7 +14,7 @@ maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="https://wiki.gnome.org/Projects/gexiv2"
 distfiles="${GNOME_SITE}/gexiv2/${version%.*}/${pkgname/lib/}-${version}.tar.xz"
-checksum=58f539b0386f36300b76f3afea3a508de4914b27e78f58ee4d142486a42f926a
+checksum=2322b552aca330eef79724a699c51a302345d5e074738578b398b7f2ff97944c
 
 build_options="gir vala"
 build_options_default="gir vala"

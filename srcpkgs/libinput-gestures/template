@@ -1,15 +1,14 @@
 # Template file for 'libinput-gestures'
 pkgname=libinput-gestures
-version=2.48
+version=2.57
 revision=1
-archs=noarch
 depends="python3 libinput xdotool wmctrl hicolor-icon-theme"
 short_desc="Action gestures on your touchpad using libinput"
 maintainer="Chinmay Pai <chinmaydpai@gmail.com>"
 license="GPL-3.0-or-later"
-homepage="https://github.com/bulletmark/${pkgname}"
+homepage="https://github.com/bulletmark/libinput-gestures"
 distfiles="${homepage}/archive/${version}.tar.gz"
-checksum=79db6dc3b17286fd6d3ef1f38bd6fa6be291ea09ae6eefe5b5c5cefe0becd92c
+checksum=4259ae64276636c0a2497a462582ef43e044c580fc27c24d647ecd0ba7f7a8a7
 conf_files="/etc/libinput-gestures.conf"
 
 do_install() {

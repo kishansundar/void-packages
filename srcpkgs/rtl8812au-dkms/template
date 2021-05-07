@@ -1,23 +1,40 @@
 # Template file for 'rtl8812au-dkms'
 pkgname=rtl8812au-dkms
-version=20190903
+version=20210302
 revision=1
-_gitrev=30d47a0a3f43ccb19e8fd59fe93d74a955147bf2
-archs=noarch
-wrksrc="rtl8812au-${_gitrev}"
+_modver=5.9.3.2
+_gitrev=d1bf6dfdef9a14ee80768a80df1852312cee7925
+wrksrc="rtl8812au-${_modver}-${_gitrev}"
 depends="dkms"
 short_desc="Realtek 8812AU/8821AU USB WiFi driver (DKMS)"
 maintainer="Renato Aguiar <renato@renag.me>"
 license="GPL-2.0-only"
 homepage="http://www.dlink.com"
-distfiles="https://github.com/gordboy/rtl8812au/archive/${_gitrev}.tar.gz"
-checksum=8893cb02683d253efe6be5a2d1f9ccea778f03b1606043381eaa649e26e8b657
-dkms_modules="rtl8812au 5.2.20"
+distfiles="https://github.com/gordboy/rtl8812au-${_modver}/archive/${_gitrev}.tar.gz"
+checksum=f2719d380deba9568ec663a7c70fcb42d15734b96f6ed19ec98733f9121fe9dc
+dkms_modules="rtl8812au ${_modver}"
+
+case "$XBPS_TARGET_MACHINE" in
+	x86_64*) _karch="x86_64";;
+	i686*) _karch="i386";;
+	aarch64*) _karch="arm64";;
+	arm*) _karch="arm";;
+	ppc*) _karch="powerpc";;
+	mips*) _karch="mips";;
+	*) broken="kernel arch not defined";;
+esac
+
+post_patch() {
+	if [ "$XBPS_TARGET_ENDIAN" = "be" ]; then
+		vsed -i 's,@@VOID_ENDIAN@@,BIG,g' Makefile
+	else
+		vsed -i 's,@@VOID_ENDIAN@@,LITTLE,g' Makefile
+	fi
+	vsed -i "s,@@VOID_ARCH@@,${_karch},g" Makefile
+}
 
 do_install() {
-	local modname=rtl8812au
-	local modver=5.2.20
-	local dest=/usr/src/${modname}-${modver}
+	local dest=/usr/src/rtl8812au-${_modver}
 
 	vmkdir ${dest}
 	cp -r dkms.conf Kconfig Makefile platform core hal include os_dep ${DESTDIR}/${dest}

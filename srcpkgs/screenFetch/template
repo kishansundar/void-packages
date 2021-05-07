@@ -1,11 +1,10 @@
 # Template file for 'screenFetch'
 pkgname=screenFetch
 version=3.9.1
-revision=1
-archs=noarch
+revision=2
 depends="bash bc xdpyinfo"
 short_desc="Bash screenshot information tool"
-maintainer="Eivind Uggedal <eivind@uggedal.com>"
+maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/KittyKatt/screenFetch"
 distfiles="${homepage}/archive/v${version}.tar.gz"

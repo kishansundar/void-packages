@@ -1,8 +1,7 @@
 # Template file for 'perl-Clipboard'
 pkgname=perl-Clipboard
-version=0.24
+version=0.28
 revision=1
-archs=noarch
 wrksrc="Clipboard-${version}"
 build_style=perl-ModuleBuild
 hostmakedepends="perl perl-Module-Build"
@@ -13,4 +12,4 @@ maintainer="Zach Dykstra <dykstra.zachary@gmail.com>"
 license="Artistic-1.0-Perl"
 homepage="https://metacpan.org/release/Clipboard"
 distfiles="https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/Clipboard-${version}.tar.gz"
-checksum=d497eddd2f3fb6c8758b5da8b66f23d2d7c93bc15846c0fc53fc6f62ac7b88ec
+checksum=9e8d79015194263357c25a0f5d094800fff43bdbf9f8601ec3b0ed5eb0966d26

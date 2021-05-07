@@ -1,13 +1,11 @@
 # Template file for 'printrun'
 pkgname=printrun
 version=1.6.0
-revision=2
-archs=noarch
+revision=4
 wrksrc="Printrun-printrun-${version}"
 build_style=python2-module
-pycompile_module="printrun"
 hostmakedepends="python-setuptools python-pyserial"
-depends="python wxPython python-pyserial python-pyglet"
+depends="python wxPython python-pyserial python-pyglet python-numpy"
 short_desc="3D printing host suite"
 maintainer="Jasper Chan <jasperchan515@gmail.com>"
 license="GPL-3.0-or-later"

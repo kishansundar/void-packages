@@ -1,24 +1,28 @@
 # Template file for 'bcc'
 pkgname=bcc
-version=0.13.0
+version=0.19.0
 revision=1
 wrksrc="bcc"
 build_style=cmake
 configure_args="-DREVISION=${version}"
-hostmakedepends="flex"
-makedepends="clang elfutils-devel lld-devel llvm ncurses-devel
- python3-devel zlib-devel"
+hostmakedepends="flex python3"
+makedepends="clang clang-tools-extra elfutils-devel flex lld-devel llvm
+ ncurses-devel python3-devel zlib-devel"
 short_desc="BPF-based Linux IO analysis, networking, monitoring, and more"
 maintainer="Leah Neukirchen <leah@vuxu.org>"
 license="Apache-2.0"
 homepage="https://github.com/iovisor/bcc"
 distfiles="https://github.com/iovisor/bcc/releases/download/v${version}/bcc-src-with-submodule.tar.gz"
-checksum=dd393ec0b05bb6da5aa5b4a62633e0e5b632b47b8ca0c57860418a7e82e3b797
+checksum=4c41fc1a6a7ef2084b43c52c1b2e6104230ba9f31e02958416bf131d848e74e4
 python_version="3"
-nocross=yes # https://github.com/voidlinux/void-packages/issues/4738
+
+if [ "$XBPS_TARGET_NO_ATOMIC8" ]; then
+	makedepends+=" libatomic-devel"
+fi
 
 post_extract() {
 	sed -i '/tests/d' CMakeLists.txt  # break on musl
+	sed -i 's/<error.h>/<errno.h>/' examples/cpp/KModRetExample.cc
 }
 bcc-tools_package() {
 	short_desc+=" - tools"
@@ -34,7 +38,7 @@ bcc-tools_package() {
 		rm -rf ${PKGDESTDIR}/usr/bin/old
 		mv ${PKGDESTDIR}/usr/bin/lib/* ${PKGDESTDIR}/usr/bin
 		rm -rf ${PKGDESTDIR}/usr/bin/lib
-		rm -rf ${PKGDESTDIR}/usr/bin/deadlock_detector.c
+		rm -f ${PKGDESTDIR}/usr/bin/*.c
 		vmove usr/share/bcc/introspection
 		vbin ${PKGDESTDIR}/usr/share/bcc/introspection/bps
 		rm -rf ${PKGDESTDIR}/usr/share/bcc/introspection

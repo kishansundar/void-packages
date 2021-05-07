@@ -2,32 +2,47 @@
 # based on https://raw.githubusercontent.com/AluisioASG/void-packages/openrct2/srcpkgs/OpenRCT2/template
 # and https://github.com/void-linux/void-packages/issues/1014#issuecomment-417372421
 pkgname=OpenRCT2
-_objects_version=1.0.13
-_titles_version=0.1.2
-version=0.2.5
-revision=1
+_objects_version=1.0.21
+_titles_version=0.1.2c
+version=0.3.3
+revision=2
 build_style=cmake
-configure_args="$(vopt_if multiplayer "" "-DDISABLE_HTTP_TWITCH=1 -DDISABLE_NETWORK=1")"
+configure_args="
+ -DOPENRCT2_VERSION_TAG=${version}
+ -DDOWNLOAD_TITLE_SEQUENCES=0
+ -DDOWNLOAD_OBJECTS=0
+ -DDISABLE_DISCORD_RPC=1
+ -DDISABLE_GOOGLE_BENCHMARK=1
+ $(vopt_if multiplayer '' '-DDISABLE_NETWORK=1')
+ $(vopt_if scripting '-DENABLE_SCRIPTING=1' '')"
+make_build_target="all g2"
 hostmakedepends="pkg-config unzip"
 makedepends="SDL2-devel fontconfig-devel freetype-devel libzip-devel
- libpng-devel speexdsp-devel jansson-devel icu-devel zlib-devel
- $(vopt_if multiplayer libcurl-devel) $(vopt_if multiplayer libressl-devel)"
-depends="libGL OpenRCT2-data"
+ libpng-devel speexdsp-devel icu-devel zlib-devel json-c++
+ $(vopt_if multiplayer 'libcurl-devel openssl-devel')
+ $(vopt_if scripting duktape-devel)"
+depends="zenity"
 short_desc="Open source re-implementation of RollerCoaster Tycoon 2"
 maintainer="klardotsh <josh@klar.sh>"
-license="GPL-3.0-or-later"
+license="GPL-3.0-or-later, CC-BY-SA-4.0"
 homepage="https://openrct2.io"
+# use title-sequences.zip to match CMakeLists instruction
 distfiles="https://github.com/OpenRCT2/OpenRCT2/archive/v${version}.tar.gz
  https://github.com/OpenRCT2/objects/releases/download/v${_objects_version}/objects.zip
- https://github.com/OpenRCT2/title-sequences/releases/download/v${_titles_version}/title-sequence-v${_titles_version}.zip"
-checksum="@b2ecc30000b2b33732a630b18c0b5b5e85352e2075ff02e33609dc34087e6235
- 0279874ad5a4c07f1fca5c62d2d5c3aa12bd849d7b643e3c7d93cfda88df7c6a
- dcb1648739b351e857e2d19fed1626bec561d5e9f4b49201568f42c475ee7e61"
-skip_extraction="objects.zip title-sequence-v${_titles_version}.zip"
+ https://github.com/OpenRCT2/title-sequences/releases/download/v${_titles_version}/title-sequences.zip"
+checksum="71f9d1ae8477e1e9881a6f9759bddac71346e8ba42238d22514ae3d872b54fd2
+ b081f885311f9afebc41d9dd4a68b7db4cf736eb815c04e307e1a426f08cfa35
+ 5284333fa501270835b5f0cf420cb52155742335f5658d7889ea35d136b52517"
+skip_extraction="objects.zip title-sequences.zip"
 
-build_options="multiplayer"
-build_options_default="multiplayer"
+replaces="OpenRCT2-data>=0"
+
+CXXFLAGS="-DNDEBUG"
+
+build_options="multiplayer scripting"
+build_options_default="multiplayer scripting"
 desc_option_multiplayer="Enable multiplayer support"
+desc_option_scripting="Enable script / plugin support"
 
 if [ "$XBPS_TARGET_ENDIAN" = "be" ]; then
 	broken="not yet implemented"
@@ -35,7 +50,7 @@ fi
 
 if [ "$CROSS_BUILD" ]; then
 	hostmakedepends+=" OpenRCT2"
-	CXXFLAGS="-DHAVE_IMMINTRIN_H=false -DSDL_DISABLE_IMMINTRIN_H=1"
+	CXXFLAGS+=" -DHAVE_IMMINTRIN_H=false -DSDL_DISABLE_IMMINTRIN_H=1"
 fi
 
 pre_configure() {
@@ -46,15 +61,8 @@ pre_configure() {
 
 post_extract() {
 	_srcdir="${XBPS_SRCDISTDIR}/${pkgname}-${version}"
-	mkdir -p data/object data/title
 	unzip -qd data/object "${_srcdir}/objects.zip"
-	unzip -qd data/title "${_srcdir}/title-sequence-v${_titles_version}.zip"
-}
+	unzip -qd data/sequence "${_srcdir}/title-sequences.zip"
 
-OpenRCT2-data_package() {
-	short_desc+=" - data files"
-	archs=noarch
-	pkg_install() {
-		vmove usr/share/openrct2
-	}
+	vsed -i CMakeLists.txt -e "s; -Werror;;"
 }

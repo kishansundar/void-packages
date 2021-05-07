@@ -1,21 +1,20 @@
 # Template file for 'perl-LWP'
 pkgname=perl-LWP
-version=6.43
+version=6.53
 revision=1
-archs=noarch
 wrksrc="libwww-perl-${version}"
 build_style=perl-module
 hostmakedepends="
  perl perl-URI perl-LWP-MediaTypes perl-Encode-Locale perl-HTTP-Message
  perl-File-Listing perl-HTTP-Negotiate perl-HTTP-Daemon perl-Net-HTTP
  perl-HTTP-Cookies perl-WWW-RobotRules perl-Try-Tiny"
-makedepends="$hostmakedepends"
-depends="$makedepends"
+makedepends="${hostmakedepends}"
+depends="${makedepends}"
 checkdepends="perl-Test-RequiresInternet perl-Test-Fatal perl-Test-Needs
  perl-Test-LeakTrace"
 short_desc="LWP - The World-Wide Web library for Perl (libwww-perl)"
-maintainer="maxice8 <thinakbit.ukim@gmail.com>"
+maintainer="Leah Neukirchen <leah@vuxu.org>"
 license="Artistic-1.0-Perl, GPL-1.0-or-later"
 homepage="https://metacpan.org/release/libwww-perl"
 distfiles="${CPAN_SITE}/LWP/libwww-perl-${version}.tar.gz"
-checksum=e9849d7ee6fd0e89cc999e63d7612c951afd6aeea6bc721b767870d9df4ac40d
+checksum=9cbb7c688416a20c1aba9a32568504af1143ced58b572c502a1b2fb8a500f535

@@ -1,14 +1,14 @@
 # Template file for 'sd'
 pkgname=sd
-version=0.6.5
+version=0.7.6
 revision=1
 build_style=cargo
 short_desc="Intuitive find & replace CLI"
 maintainer="SolitudeSF <solitudesf@protonmail.com>"
 license="MIT"
 homepage="https://github.com/chmln/sd"
-distfiles="${homepage}/archive/${version}.tar.gz"
-checksum=ed38e5103080373b00443f72683ac2785b18e354ab6ef4797e27af028be9baf2
+distfiles="https://github.com/chmln/sd/archive/v${version}.tar.gz"
+checksum=faf33a97797b95097c08ebb7c2451ac9835907254d89863b10ab5e0813b5fe5f
 
 post_install() {
 	vlicense LICENSE

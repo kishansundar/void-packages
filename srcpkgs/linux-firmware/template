@@ -1,28 +1,34 @@
 # Template file for 'linux-firmware'
 pkgname=linux-firmware
-version=20200316
-revision=1
-archs=noarch
-depends="${pkgname}-amd-${version}_${revision} ${pkgname}-network-${version}_${revision}"
+version=20210315
+revision=2
+depends="${pkgname}-amd>=${version}_${revision} ${pkgname}-network>=${version}_${revision}"
 short_desc="Binary firmware blobs for the Linux kernel"
-maintainer="Orphaned <orphan@voidlinux.org>"
+maintainer="Érico Nogueira <ericonr@disroot.org>"
 license="See /usr/share/licenses/${pkgname}"
 homepage="https://www.kernel.org/"
 distfiles="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/snapshot/${pkgname}-${version}.tar.gz"
-checksum=b442ad49e0002c6ff8443f4745810fe10d4cd6df43a7ce5e37ac40057c75ac13
+checksum=0b90f7090cf15bbc1002a6dbb03487511e8687b072d364250de8c7429dd82fdd
+python_version=3
+nostrip=yes
+
+subpackages="linux-firmware-amd linux-firmware-broadcom
+ linux-firmware-intel linux-firmware-nvidia linux-firmware-network"
 
 do_install() {
-	vmkdir usr/lib/firmware
-	vmkdir usr/share/licenses/${pkgname}
-	vcopy "*" usr/lib/firmware
-	rm -f ${DESTDIR}/usr/lib/firmware/{README*,configure,GPL*}
-	mv ${DESTDIR}/usr/lib/firmware/{LICEN*,WHENCE} \
-		${DESTDIR}/usr/share/licenses/${pkgname}
+	make install FIRMWAREDIR=/usr/lib/firmware DESTDIR=$DESTDIR
+
+	for _l in LICEN* WHENCE
+	do
+		vlicense "$_l"
+	done
+
+	# XXX: should some firmwares, like carl9170, be pruned?
 }
 
 linux-firmware-amd_package() {
 	short_desc+=" - AMD CPU/GPU microcode"
-	archs=noarch
+	nostrip=yes
 	pkg_install() {
 		vmove usr/lib/firmware/amd*
 		vmove usr/lib/firmware/radeon
@@ -32,9 +38,22 @@ linux-firmware-amd_package() {
 	}
 }
 
+linux-firmware-broadcom_package() {
+	short_desc+=" - Broadcom network blobs"
+	nostrip=yes
+	replaces="rpi-firmware-network>=0"
+	pkg_install() {
+		vmove usr/lib/firmware/brcm
+		vmove usr/share/licenses/linux-firmware/LICENCE.broadcom_bcm43xx
+		# firmware/brcm contains multiple symlinks to ../cypress/
+		vmove usr/lib/firmware/cypress
+		vmove usr/share/licenses/linux-firmware/LICENCE.cypress
+	}
+}
+
 linux-firmware-intel_package() {
 	short_desc+=" - Intel CPU/GPU microcode"
-	archs=noarch
+	nostrip=yes
 	pkg_install() {
 		vmove usr/lib/firmware/i915
 		vmove usr/share/licenses/linux-firmware/LICENSE.i915
@@ -43,7 +62,7 @@ linux-firmware-intel_package() {
 
 linux-firmware-nvidia_package() {
 	short_desc+=" NVIDIA GPU microcode"
-	archs=noarch
+	nostrip=yes
 	pkg_install() {
 		vmove usr/lib/firmware/nvidia
 		vmove usr/share/licenses/linux-firmware/LICENCE.nvidia*
@@ -52,7 +71,8 @@ linux-firmware-nvidia_package() {
 
 linux-firmware-network_package() {
 	short_desc+=" - network"
-	archs=noarch
+	depends="linux-firmware-broadcom>=${version}_${revision}"
+	nostrip=yes
 	pkg_install() {
 		vmove usr/lib/firmware/3com
 		vmove usr/lib/firmware/RTL8192E
@@ -60,7 +80,6 @@ linux-firmware-network_package() {
 		vmove "usr/lib/firmware/ath*"
 		vmove "usr/lib/firmware/ar*"
 		vmove "usr/lib/firmware/bnx2*"
-		vmove usr/lib/firmware/brcm
 		vmove "usr/lib/firmware/cxgb*"
 		vmove "usr/lib/firmware/htc*"
 		vmove "usr/lib/firmware/iwl*"
@@ -68,8 +87,10 @@ linux-firmware-network_package() {
 		vmove usr/lib/firmware/kaweth
 		vmove usr/lib/firmware/libertas
 		vmove usr/lib/firmware/mrvl
+		vmove "usr/lib/firmware/mt*.bin"
 		vmove usr/lib/firmware/ueagle-atm
 		vmove usr/lib/firmware/ti-connectivity
 		vmove usr/lib/firmware/dpaa2
+		vmove usr/lib/firmware/qca
 	}
 }

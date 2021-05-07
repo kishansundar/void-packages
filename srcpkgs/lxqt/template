@@ -1,7 +1,7 @@
 # Template file for 'lxqt'
 pkgname=lxqt
-version=0.14.0
-revision=2
+version=0.17.0
+revision=1
 build_style=meta
 depends="
 	lxqt-about>=${version}
@@ -18,10 +18,11 @@ depends="
 	lxqt-session>=${version}
 	lxqt-sudo>=${version}
 	lxqt-themes>=${version}
-	obconf-qt>=${version}
+	obconf-qt
 	pcmanfm-qt>=${version}
 	lximage-qt>=${version}
 	lxmenu-data
+	lxqt-archiver
 	qterminal>=${version}
 	openbox
 	breeze-icons
@@ -29,6 +30,6 @@ depends="
 	elogind
 	upower"
 short_desc="LXQt meta-package for Void Linux"
-maintainer="Orphaned <orphan@voidlinux.org>"
-license="LGPL-2.1-or-later"
+maintainer="Helmut Pozimski <helmut@pozimski.eu>"
+license="BSD-2-Clause" # Suppress xlint warning: vlicense
 homepage="https://www.lxqt.org/"

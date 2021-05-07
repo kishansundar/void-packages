@@ -1,18 +1,20 @@
 # Template file for 'pulseeffects'
 pkgname=pulseeffects
-reverts="4.3.4_1"
-version=3.2.3
-revision=5
+version=5.0.3
+revision=1
 build_style=meson
-pycompile_module="PulseEffects PulseEffectsTest"
-hostmakedepends="pkg-config"
-makedepends="gsettings-desktop-schemas-devel gst-plugins-bad1-devel
- gtk+3-devel libbs2b-devel pulseaudio-devel python3-gobject-devel"
+hostmakedepends="itstool pkg-config gettext"
+makedepends="boost-devel glib-devel gsettings-desktop-schemas-devel
+ gst-plugins-bad1-devel gtkmm-devel libebur128-devel lilv-devel
+ pipewire-devel python3-gobject-devel sratom-devel zita-convolver-devel
+ libsndfile-devel libbs2b-devel"
 depends="calf gsettings-desktop-schemas gst-plugins-bad1
- gst-plugins-good1 pulseaudio python3-gobject python3-numpy python3-scipy"
-short_desc="Sound effects for Pulseaudio applications"
+ gst-plugins-good1 pipewire python3-gobject python3-scipy zita-convolver
+ gstreamer1-pipewire"
+short_desc="Sound effects for systems using PipeWire"
 maintainer="Orphaned <orphan@voidlinux.org>"
-license="GPL-3"
+license="GPL-3.0-or-later"
 homepage="https://github.com/wwmm/pulseeffects"
 distfiles="https://github.com/wwmm/pulseeffects/archive/v${version}.tar.gz"
-checksum=049a9d9c162a17790d392b7de9a0cc1397de32bd4324ae6490a45b96c92e5528
+checksum=2e14858918b54bee5f6e4898cc803ae2170b4d624407fef39e0831b6584c4a4f
+python_version=3

@@ -1,19 +1,15 @@
 # Template file for 'rdiff-backup'
 pkgname=rdiff-backup
-version=1.2.8
-revision=2
-build_style=python2-module
-pycompile_module="rdiff_backup"
-hostmakedepends="python"
-makedepends="python-devel librsync-devel"
-depends="python"
+version=2.0.5
+revision=3
+build_style=python3-module
+hostmakedepends="python3-setuptools_scm"
+makedepends="python3-devel librsync-devel"
+depends="python3-pyxattr"
 short_desc="Local/remote mirroring and incremental backups"
 maintainer="Duncaen <duncaen@voidlinux.org>"
 license="GPL-2.0-or-later"
-homepage="http://rdiff-backup.nongnu.org/"
-distfiles="${NONGNU_SITE}/${pkgname}/${pkgname}-${version}.tar.gz"
-checksum=0d91a85b40949116fa8aaf15da165c34a2d15449b3cbe01c8026391310ac95db
-
-pre_build() {
-	sed -i -e 's;RS_DEFAULT_STRONG_LEN;8, RS_MD4_SIG_MAGIC;' _librsyncmodule.c
-}
+homepage="https://rdiff-backup.net/"
+changelog="https://github.com/rdiff-backup/rdiff-backup/raw/master/CHANGELOG.md"
+distfiles="${PYPI_SITE}/r/rdiff-backup/rdiff-backup-${version}.tar.gz"
+checksum=54d16038e62014ed916c71c8303b07d2fa61a6a68038ca189fc2d31534b0f38b

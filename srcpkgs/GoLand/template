@@ -1,23 +1,26 @@
 # Template file for 'GoLand'
 pkgname=GoLand
-version=2019.3
+version=2020.3.2
 revision=1
 archs="i686 x86_64"
-depends="virtual?java-environment"
+depends="jetbrains-jdk-bin"
 short_desc="Cross-platform IDE built specially for Go developers"
 maintainer="Anton Afanasyev <anton@doubleasoftware.com>"
 license="custom:Commercial"
 homepage="https://www.jetbrains.com/go"
 distfiles="https://download.jetbrains.com/go/goland-${version}.tar.gz"
-checksum=a1bb4e9e61bdcc19e1a8d7303909057e5582a7735d1d5ccce833073d7faf33af
+checksum=5f1bacaadac20259b58215fb3a5f58fe97ba1051279a7f9060693d1e1ea18b03
 repository=nonfree
 restricted=yes
 nopie=yes
+python_version=3
 
 post_extract() {
 	# Remove files for other CPU architectures
 	rm -rf bin/fsnotifier-arm
 	rm -rf lib/pty4j-native/linux/ppc64le
+	rm -rf lib/pty4j-native/linux/aarch64
+	rm -rf lib/pty4j-native/linux/mips64el
 
 	case "$XBPS_TARGET_MACHINE" in
 		x86_64)
@@ -46,6 +49,8 @@ do_install() {
 		vlicense $i
 	done
 
+	local launcher_path="bin/goland.sh"
+	sed -i '1 s/$/\nGOLAND_JDK=${GOLAND_JDK:-${IDEA_JDK}}/' "${launcher_path}"
 	vcopy bin ${TARGET_PATH}
 	vcopy help ${TARGET_PATH}
 	vcopy lib ${TARGET_PATH}
@@ -53,5 +58,5 @@ do_install() {
 	vcopy product-info.json ${TARGET_PATH}
 	vcopy build.txt ${TARGET_PATH}
 
-	ln -sf /${TARGET_PATH}/bin/goland.sh ${DESTDIR}/usr/bin/${pkgname}
+	ln -sf "/${TARGET_PATH}/${launcher_path}" "${DESTDIR}/usr/bin/${pkgname}"
 }

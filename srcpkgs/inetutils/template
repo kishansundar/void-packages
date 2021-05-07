@@ -1,21 +1,27 @@
 # Template file for 'inetutils'
 pkgname=inetutils
-version=1.9.4
-revision=11
+version=2.0
+revision=1
 build_style=gnu-configure
 configure_args="--without-wrap --with-pam"
 makedepends="pam-devel readline-devel"
+checkdepends="iana-etc net-tools"
 short_desc="GNU network utilities"
 maintainer="Orphaned <orphan@voidlinux.org>"
 license="GPL-3.0-or-later"
 homepage="http://www.gnu.org/software/inetutils"
 distfiles="${GNU_SITE}/$pkgname/$pkgname-$version.tar.xz"
-checksum=849d96f136effdef69548a940e3e0ec0624fc0c81265296987986a0dd36ded37
+checksum=e573d566e55393940099862e7f8994164a0ed12f5a86c3345380842bdc124722
 
 subpackages="inetutils-dnsdomainname inetutils-ftp inetutils-hostname
  inetutils-ifconfig inetutils-inetd inetutils-ping inetutils-rexec
  inetutils-syslog inetutils-telnet inetutils-tftp inetutils-traceroute
  inetutils-uucpd inetutils-whois"
+
+CFLAGS="-fcommon"
+
+# hostname test can't run in CI
+make_check=ci-skip
 
 case "$XBPS_TARGET_MACHINE" in
 *-musl)
@@ -178,12 +184,13 @@ inetutils-tftp_package() {
 	alternatives="
 	 tftp:tftp:/usr/bin/${pkgname}
 	 tftp:tftp.1:/usr/share/man/man1/${pkgname}.1
+	 tftp:tftpd.8:/usr/share/man/man8/inetutils-tftpd.8
 	"
 	pkg_install() {
 		vbin src/tftp ${pkgname}
 		vman man/tftp.1 ${pkgname}.1
 		vbin src/tftpd
-		vman man/tftpd.8
+		vman man/tftpd.8 inetutils-tftpd.8
 		vinstall ${FILESDIR}/tftp.xinetd 644 etc/xinetd.d tftp
 		# TODO: write etc/inet.d/tftp.conf or add an etc/inetd.conf line
 	}

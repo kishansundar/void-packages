@@ -1,14 +1,13 @@
 # Template file for 'man-pages'
 pkgname=man-pages
-version=5.05
-revision=1
-archs=noarch
+version=5.11
+revision=2
 short_desc="Linux Documentation Project (LDP) manual pages"
 maintainer="Enno Boland <gottox@voidlinux.org>"
 license="GPL-2.0-or-later"
 homepage="http://man7.org/linux/man-pages/index.html"
 distfiles="${KERNEL_SITE}/docs/man-pages/${pkgname}-${version}.tar.xz"
-checksum=d5b135b1196d9258138610dbc47190d8b9ac9dee7f8ee6d9196f7fc6a036eb47
+checksum=3eda5dce5184599ec37dae3494cf964c550362e9a41fb724792da610bdb13caa
 
 do_install() {
 	make all prefix=${DESTDIR}/usr
@@ -35,9 +34,6 @@ do_install() {
 	# mdocml
 	rm -f man7/man.7
 	rm -f man7/mdoc.7
-	# attr-devel
-	rm -f man5/attr.5
-	rm -f man2/*xattr.2
 	# openssl-devel
 	mv man3/rand.3 man3/glibc-rand.3
 	mv man3/err.3 man3/glibc-err.3
@@ -50,7 +46,6 @@ do_install() {
 }
 
 man-pages-devel_package() {
-	archs=noarch
 	short_desc+=" - development pages"
 	pkg_install() {
 		vmove usr/share/man/man[2-3]

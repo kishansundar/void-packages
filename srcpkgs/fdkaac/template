@@ -1,7 +1,7 @@
 # Template file for 'fdkaac'
 pkgname=fdkaac
-version=1.0.0
-revision=2
+version=1.0.2
+revision=1
 build_style=gnu-configure
 hostmakedepends="automake"
 makedepends="fdk-aac-devel"
@@ -9,8 +9,8 @@ short_desc="Command line encoder frontend for libfdk-aac"
 maintainer="Leah Neukirchen <leah@vuxu.org>"
 license="MIT, BSD-4-Clause, Zlib"
 homepage="https://github.com/nu774/fdkaac"
-distfiles="https://github.com/nu774/${pkgname}/archive/${version}.tar.gz"
-checksum=1cb1a245d3b230d9c772e69aea091e6195073cbd8cc7d63e684af7d69b495365
+distfiles="https://github.com/nu774/${pkgname}/archive/v${version}.tar.gz"
+checksum=8a0b67792605fb8955d6be78a81e3a4029e9b7d0f594d8ed76e0fbcef90be0c8
 
 pre_configure() {
 	autoreconf -fi

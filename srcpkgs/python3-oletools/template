@@ -1,20 +1,19 @@
 # Template file for 'python3-oletools'
 pkgname=python3-oletools
-version=0.55
-revision=2
-archs=noarch
+version=0.56.1
+revision=1
 wrksrc="oletools-${version}"
 build_style=python3-module
-pycompile_module="oletools"
 hostmakedepends="python3-setuptools"
 depends="python3-parsing python3-olefile python3-colorclass python3-easygui
  python3-msoffcrypto-tool python3-pcodedmp"
+checkdepends="$depends python3-pytest"
 short_desc="Python3 library to analyze MS OLE2 and Office files"
 maintainer="Andrew Benson <abenson+void@gmail.com>"
 license="MIT"
 homepage="https://github.com/decalage2/oletools"
 distfiles="${homepage}/archive/v${version}.tar.gz"
-checksum=3675ffca84398afd4c33852004b085c1b8dfa6079960cfba7ece35db9ebddb6f
+checksum=827cc577e253d946d5616e0a18062ed6aa837368fc19912c06e7d4c7ed502f77
 
 post_install() {
 	vlicense oletools/LICENSE.txt
